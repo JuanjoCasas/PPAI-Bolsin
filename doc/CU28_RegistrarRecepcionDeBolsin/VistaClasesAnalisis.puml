@@ -1,0 +1,157 @@
+@startuml "RegistrarRecepcionDeBolsin"
+
+class Empleado <<entity>> {
+  apellido
+  email
+  nombre
+  esTuCM()
+  getCM()
+  getEmail()
+  mostrarCM()
+  sosGCM()
+}
+
+class ComisionMedica <<entity>> {
+  codigo
+  direccion
+  email
+  nombre
+  telefono
+  getNombre()
+}
+
+class Bolsin <<entity>> {
+  fecha
+  numeroBolsin
+  numeroPrecinto
+  peso
+  asociarRemito()
+  crearCEBolsin()
+  esTuCMOrigen()
+  getNroPrecinto()
+  getNumeroBolsin()
+  mostrarDatos()
+  new()
+  obtenerCMDestino()
+  obtenerInformacionRemito()
+  setDetalleBolsin()
+  sosEnviado()
+}
+
+class Remito <<entity>> {
+  fecha
+  numero
+  actualizarEstadoDoc()
+  buscarDocumentacion()
+  estasGenerado()
+  getDatosRemito()
+  getNumero()
+  modificarDocumentacionIncluida()
+  mostrarInformacionRemito()
+  new()
+  setEstado()
+  setEstado()
+  tenesEstaCMDestino()
+  tenesEstaCMOrigen()
+  tomarDocumentacion()
+}
+
+class CambioEstadoBolsin <<entity>> {
+  fechaHoraFin
+  fechaHoraInicio
+  new()
+  setFechaHoraFin()
+  sosActual()
+  sosEnviado()
+}
+
+class Estado <<entity>> {
+  ambito
+  descripcion
+  nombre
+  esAmbitoBolsin()
+  esAmbitoDocumentacion()
+  esAmbitoRemito()
+  esEnviado()
+  esRecibidaYAceptada()
+  esRecibidoENCMCDestino()
+  esRecibidoYAceptado()
+  getAmbito()
+  getDescripcion()
+  getNombre()
+  new()
+  setAmbito()
+  setDescripcion()
+  setNombre()
+}
+
+class Documentacion <<entity>> {
+  asunto
+  fechaPase
+  numero
+  aceptar()
+  crearCE()
+  getAsunto()
+  getDatosDocumentacion()
+  mostrarTipoDocumentacion()
+  new()
+  remitar()
+  setEstado()
+}
+
+class TipoDocumento <<entity>> {
+  descripcion
+  nombre
+  getDescripcion()
+  getNombre()
+  new()
+  setDescripcion()
+  setNombre()
+}
+
+class Rol <<entity>> {
+  descripcion
+  nombre
+  esGCM()
+}
+
+class DetalleRemito <<entity>> {
+  areaCMCDestino
+  aceptarDocumentacion()
+  actualizarEstadoDoc()
+  getDocumentacion()
+  mostrarDocumentacion()
+}
+
+
+class CambioEstadoDocumentacion <<entity>> {
+  fechaHoraFin
+  fechaHoraInicio
+  new()
+  setFechaHoraFin()
+  sosActual()
+}
+
+ComisionMedica "1" <-- Empleado : asignadoA
+Empleado --> "1" Rol : rol
+
+Documentacion --> "1" TipoDocumento : tipoDocumento
+Documentacion --> "1" ComisionMedica : cmOrigen
+Documentacion --> "1..*" CambioEstadoDocumentacion : cambioEstado
+CambioEstadoDocumentacion --> "1" Estado : estado
+CambioEstadoDocumentacion --> "1" Empleado : responsableCE
+
+Remito o--> "1..*" DetalleRemito : detalleRemito
+DetalleRemito --> "1" Documentacion : documentacion
+Remito --> "1" ComisionMedica : origen
+Remito --> "1" ComisionMedica : destino
+Remito --> "1" Estado : estado
+
+Bolsin o--> "1..*" Remito : remito
+Bolsin --> "1" ComisionMedica : origen
+Bolsin --> "1" ComisionMedica : destino
+Bolsin --> "1..*" CambioEstadoBolsin : cambioEstado
+CambioEstadoBolsin --> "1" Estado : estado
+CambioEstadoBolsin --> "1" Empleado : responsableCE
+
+@enduml
