@@ -62,6 +62,12 @@ class Remito <<entity>> {
   tenesEstaCMDestino()
   tenesEstaCMOrigen()
   tomarDocumentacion()
+  agregarDocumentacion()
+  agregarABolsin()
+  cancelar()
+  quitarDeBolsin()
+  retirarBolsin()
+  recibir()
 }
 
 class CambioEstadoBolsin <<entity>> {
