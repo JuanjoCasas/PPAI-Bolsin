@@ -12,6 +12,7 @@ cerrado --> pendienteDeRetiro : finJornadaLaboral()
 
 pendienteDeRetiro -> enviado : retirado()
 
+state "Recibido en CM destino" as recibido
 enviado -> recibido : recibir()
 
 deBaja -> [*]

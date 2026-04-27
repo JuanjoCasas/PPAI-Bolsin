@@ -1,5 +1,49 @@
 @startuml "RegistrarRecepcionDeBolsin"
 
+class BoundaryRegistrarRecepcionBolsin <<boundary>> {
+  cmUsuario
+  bolsinesEntrantes
+  bolsinSeleccionado
+  remitos
+  opcionesRecepcionBolsin
+  opcionesRecepcionSeleccionada
+  confirmarRecepcion
+  ejecucionExitosa
+  opcionRegistrarBolsin()
+  habilitarPantalla()
+  mostrarCMUsuario()
+  mostrarBolsines()
+  seleccionarBolsin()
+  mostrarDetalleBolsin()
+  mostrarOpcionesRecepcionBolsin()
+  seleccionaOpcionContenidoCoincide()
+  pedirConfirmacion()
+  confirmar()
+  informarEjecucionExitosa()
+}
+
+class ControllerRegistrarRecepcionBolsin <<control>> {
+  cmUsuario
+  bolsinesEntrantes
+  bolsinSeleccionado
+  remitos
+  opcionesRecepcionBolsin
+  opcionesRecepcionSeleccionada
+  confirmarRecepcion
+  ejecucionExitosa
+  opcionRegistrarBolsin()
+  tomarSeleccionBolsin()
+  tomarOpcionRecepcion()
+  confirmarRecepcion()
+  finCU()
+}
+
+class ControllerNotificarRecepcionBolsin <<control>> {
+  cmANotificar
+  bolsin
+  notificarRecepcionBolsin()
+}
+
 class Empleado <<entity>> {
   apellido
   email
@@ -36,6 +80,8 @@ class Bolsin <<entity>> {
   obtenerInformacionRemito()
   setDetalleBolsin()
   sosEnviado()
+  actualizarEstado()
+  actualizarEstadoRemito()
   agregarRemito()
   eliminar()
   cerrar()
@@ -145,6 +191,14 @@ class CambioEstadoDocumentacion <<entity>> {
   setFechaHoraFin()
   sosActual()
 }
+
+BoundaryRegistrarRecepcionBolsin ..> ControllerRegistrarRecepcionBolsin
+ControllerRegistrarRecepcionBolsin ..> BoundaryRegistrarRecepcionBolsin
+
+ControllerRegistrarRecepcionBolsin ..> Empleado
+ControllerRegistrarRecepcionBolsin ..> Bolsin
+
+ControllerRegistrarRecepcionBolsin ..> ControllerNotificarRecepcionBolsin
 
 ComisionMedica "1" <-- Empleado : asignadoA
 Empleado --> "1" Rol : rol

@@ -1,0 +1,91 @@
+@startuml "RegistrarRecepcionDeBolsin"
+skinparam sequenceParticipant underline
+
+actor ":EB" as EB
+
+boundary ":BoundaryRegistrarRecepcionBolsin" as Boundary
+control ":ControllerRegistrarRecepcionBolsin" as Controller
+entity "logueado:Empleado" as Empleado
+entity ":ComisionMedica" as ComisionMedica
+entity ":Bolsin" as Bolsin
+entity "seleccion:Bolsin" as BolsinSelecciondo
+entity ":Remito" as Remito
+entity ":DetalleRemito" as DetalleRemito
+entity ":Documentacion" as Documentacion
+entity ":TipoDocumento" as TipoDocumento
+entity ":Estado" as Estado
+entity ":CambioEstadoBolsin" as CambioEstadoBolsin
+entity "nuevo:CambioEstadoBolsin" as NewCambioEstadoBolsin
+entity ":CambioEstadoDocumentacion" as CambioEstadoDocumentacion
+entity "nuevo:CambioEstadoDocumentacion" as NewCambioEstadoDocumentacion
+
+control ":ControllerNotificarRecepcionBolsin" as Notificar
+
+EB --> Boundary ** : opcionRegistrarBolsin()
+Boundary -> Boundary : habilitarPantalla()
+
+Boundary --> Controller ** : opcionRegistrarBolsin()
+
+Controller -> Empleado : getCM()
+
+Controller -> Boundary : mostrarCMUsuario()
+
+Controller -> Bolsin : obtenerCMDestino()
+note right :capaz por encapsulamiento es mejor agregar un esCMDestino()
+
+Controller -> Boundary : mostrarBolsines()
+
+EB -> Boundary : seleccionarBolsin()
+Boundary -> Controller : tomarSeleccionBolsin()
+
+Controller -> BolsinSelecciondo : obtenerInformacionRemito()
+BolsinSelecciondo -> Remito : getDatosRemito()
+Remito -> DetalleRemito : mostrarDocumentacion()
+DetalleRemito -> Documentacion : getDatosDocumentacion()
+DetalleRemito -> Documentacion : getTipoDocumentacion()
+Documentacion -> TipoDocumento : getNombre()
+
+Controller -> Boundary : mostrarDetalleBolsin()
+Controller -> Boundary : mostrarOpcionesRecepcionBolsin()
+note right : entiendo que el controlador deberia ir a buscar las opciones a algun lado y despues las muestro
+
+EB -> Boundary : seleccionaOpcionContenidoCoincide()
+Boundary -> Controller : tomarOpcionRecepcion()
+
+Controller -> Boundary : pedirConfirmacion()
+
+EB -> Boundary : confirmar()
+Boundary -> Controller : confirmarRecepcion()
+
+Controller -> Estado : esRecibidoENCMDestino()*
+
+Controller -> BolsinSelecciondo : actualizarEstado()
+BolsinSelecciondo -> CambioEstadoBolsin : sosActual()*
+BolsinSelecciondo -> CambioEstadoBolsin : setFechaHoraFin()
+BolsinSelecciondo --> NewCambioEstadoBolsin** : new()
+note right : se asume que el new setea empleado y hora inicio? o hay que agregar el metodo a la clase? 
+
+Controller -> Estado : esRecibidoYAceptado()*
+Controller -> Estado : esRecibidoYAceptada()*
+Controller -> BolsinSelecciondo : actualizarEstadoRemito()
+
+loop por cada remito del bolsín
+
+    BolsinSelecciondo -> Remito : setEstado()
+
+    loop por cada documentación del remito
+        Remito -> DetalleRemito : actualizarEstadoDoc()
+        DetalleRemito -> Documentacion : setEstado()
+        Documentacion -> CambioEstadoDocumentacion : sosActual()*
+        Documentacion -> CambioEstadoDocumentacion : setFechaHoraFin()
+        Documentacion --> NewCambioEstadoDocumentacion** : new()
+    end
+end
+
+Controller -> Notificar : notificarRecepcionBolsin()*
+
+Controller -> Boundary : informarEjecucionExitosa()
+
+Controller -> Controller : finCU()
+
+@enduml
