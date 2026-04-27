@@ -36,7 +36,7 @@ class Bolsin <<entity>> {
   obtenerInformacionRemito()
   setDetalleBolsin()
   sosEnviado()
-  agregarDocumentacion()
+  agregarRemito()
   eliminar()
   cerrar()
   romperPrecinto()

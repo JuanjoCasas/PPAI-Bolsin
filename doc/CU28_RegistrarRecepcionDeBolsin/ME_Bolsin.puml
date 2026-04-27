@@ -2,7 +2,7 @@
 hide empty description
 
 [*] --> creado : new()
-creado -> creado : agregarDocumentacion()
+creado -> creado : agregarRemitos()
 creado -> deBaja : eliminar()
 creado --> cerrado : cerrar()
 
