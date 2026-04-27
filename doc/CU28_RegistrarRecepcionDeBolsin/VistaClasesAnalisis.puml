@@ -36,6 +36,14 @@ class Bolsin <<entity>> {
   obtenerInformacionRemito()
   setDetalleBolsin()
   sosEnviado()
+  agregarDocumentacion()
+  eliminar()
+  cerrar()
+  romperPrecinto()
+  eliminar()
+  finJornadaLaboral()
+  retirado()
+  recibir()
 }
 
 class Remito <<entity>> {
