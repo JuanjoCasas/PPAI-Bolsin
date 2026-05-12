@@ -1,30 +1,30 @@
 @startuml "Maquina de estado del Bolsin"
 hide empty description
 
-[*] --> creado : new()
-creado -> creado : agregarRemitos()
-creado -> deBaja : eliminar()
-creado --> cerrado : cerrar()
+[*] --> Creado : new()
+Creado -> Creado : agregarRemitos()
+Creado -> DeBaja : eliminar()
+Creado --> Cerrado : cerrar()
 
-cerrado -> creado : romperPrecinto()
-cerrado -> deBaja : eliminar()
-cerrado --> pendienteDeRetiro : finJornadaLaboral()
+Cerrado -> Creado : romperPrecinto()
+Cerrado -> DeBaja : eliminar()
+Cerrado --> PendienteDeRetiro : finJornadaLaboral()
 
-pendienteDeRetiro -> enviado : retirado()
+PendienteDeRetiro -> Enviado : retirado()
 
 state "Recibido en CM destino" as recibido
-enviado -> recibido : recibir()
+Enviado -> Recibido : recibir()
 
-deBaja -> [*]
-recibido -> [*]
+DeBaja -> [*]
+Recibido -> [*]
 
-note right of creado #FFCCCC
+note left of Creado #FFCCCC
     REVISAR
     Inicialmente este estado era EnPreparacion.
     Luego de leer las ERS se interpretó que:
       - Es el estado inicial real
       - Aún no hay armado de bolsín
-    Se renombra a creado.
+    Se renombra a Creado.
     Está correcta la interpretación?
 end note
 

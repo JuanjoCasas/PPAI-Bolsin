@@ -1,24 +1,24 @@
 @startuml "Maquina de estado del Bolsin"
 hide empty description
 
-[*] --> creado : new()
-creado -> creado : agregarDocumentacion()
-creado --> enBolsinSaliente : agregarABolsin()
-creado --> cancelado : cancelar()
+[*] --> Creado : new()
+Creado -> Creado : agregarDocumentacion()
+Creado --> EnBolsinSaliente : agregarABolsin()
+Creado --> Cancelado : cancelar()
 
-enBolsinSaliente -> creado : quitarDeBolsin()
-enBolsinSaliente --> enBolsinEnviado : retirarBolsin()
+EnBolsinSaliente -> Creado : quitarDeBolsin()
+EnBolsinSaliente --> EnBolsinEnviado : retirarBolsin()
 
-state "recibida y aceptada" as recYAcep
-state "recibido y aceptado parcial" as recYAcepParc
+state "RecibidaYAceptada" as RecYAcep
+state "RecibidoYAceptadoParcial" as RecYAcepParc
 
-enBolsinEnviado --> recYAcep : recibir()
-enBolsinEnviado ---> recYAcepParc : recibir()
+EnBolsinEnviado --> RecYAcep : recibir()
+EnBolsinEnviado ---> RecYAcepParc : recibir()
 
-recYAcep -> [*]
-recYAcepParc -> [*]
+RecYAcep -> [*]
+RecYAcepParc -> [*]
 
-cancelado -> [*]
+Cancelado -> [*]
 
 
 
