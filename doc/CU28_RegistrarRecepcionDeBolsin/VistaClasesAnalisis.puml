@@ -22,8 +22,10 @@ class BoundaryRegistrarRecepcionBolsin <<boundary>> {
   informarEjecucionExitosa()
 }
 
-class ControllerRegistrarRecepcionBolsin <<control>> {
-  cmUsuario
+class ControllerRegistrarRecepcionBolsin <<control>> { 
+  sesionActiva
+  empleadoLogueado
+  cmUsuarioLogueado
   bolsinesEntrantes
   bolsinSeleccionado
   remitos
@@ -31,17 +33,25 @@ class ControllerRegistrarRecepcionBolsin <<control>> {
   opcionesRecepcionSeleccionada
   confirmarRecepcion
   ejecucionExitosa
+  obtenerBolsinesCMUsuario()
   opcionRegistrarBolsin()
   tomarSeleccionBolsin()
   tomarOpcionRecepcion()
   confirmarRecepcion()
+  llamarCu29NotificarRecepcionBolsin()
   finCU()
 }
 
-class ControllerNotificarRecepcionBolsin <<control>> {
-  cmANotificar
-  bolsin
-  notificarRecepcionBolsin()
+class Sesion <<entity>> {
+  fechaInicio
+  fechaFin
+  getCMUsuarioLogueado()
+}
+
+class Usuario <<entity>> {
+  nombre
+  contraseña
+  getEmpleado()
 }
 
 class Empleado <<entity>> {
@@ -77,6 +87,7 @@ class Bolsin <<entity>> {
   mostrarDatos()
   new()
   obtenerCMDestino()
+  esTuCMDestino()
   obtenerInformacionRemito()
   setDetalleBolsin()
   sosEnviado()
@@ -195,7 +206,10 @@ class CambioEstadoDocumentacion <<entity>> {
 BoundaryRegistrarRecepcionBolsin ..> ControllerRegistrarRecepcionBolsin
 ControllerRegistrarRecepcionBolsin ..> BoundaryRegistrarRecepcionBolsin
 
-ControllerRegistrarRecepcionBolsin ..> Empleado
+ControllerRegistrarRecepcionBolsin ..> Sesion
+Sesion --> "1" Usuario
+Empleado --> "1" Usuario
+Usuario ..> Empleado
 ControllerRegistrarRecepcionBolsin ..> Bolsin
 
 ControllerRegistrarRecepcionBolsin ..> ControllerNotificarRecepcionBolsin

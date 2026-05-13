@@ -1,37 +1,53 @@
 @startuml "RegistrarRecepcionDeBolsin"
 skinparam sequenceParticipant underline
+skinparam participant {
+    RoundCorner 150
+}
 
 actor ":EB" as EB
 
 boundary ":BoundaryRegistrarRecepcionBolsin" as Boundary
 control ":ControllerRegistrarRecepcionBolsin" as Controller
+entity ":Sesion" as Sesion
+entity ":Usuario" as Usuario
 entity "logueado:Empleado" as Empleado
 entity ":ComisionMedica" as ComisionMedica
 entity ":Bolsin" as Bolsin
+entity ":CambioEstadoBolsin" as CambioEstadoBolsin
+entity "nuevo:CambioEstadoBolsin" as NewCambioEstadoBolsin
+entity ":Estado" as Estado
 entity "seleccion:Bolsin" as BolsinSelecciondo
 entity ":Remito" as Remito
 entity ":DetalleRemito" as DetalleRemito
 entity ":Documentacion" as Documentacion
 entity ":TipoDocumento" as TipoDocumento
-entity ":Estado" as Estado
-entity ":CambioEstadoBolsin" as CambioEstadoBolsin
-entity "nuevo:CambioEstadoBolsin" as NewCambioEstadoBolsin
 entity ":CambioEstadoDocumentacion" as CambioEstadoDocumentacion
 entity "nuevo:CambioEstadoDocumentacion" as NewCambioEstadoDocumentacion
 
-control ":ControllerNotificarRecepcionBolsin" as Notificar
+participant "<plain>29 Notificar recepción de bolsín</plain>" as CUNotificar
 
 EB --> Boundary ** : opcionRegistrarBolsin()
 Boundary -> Boundary : habilitarPantalla()
 
 Boundary --> Controller ** : opcionRegistrarBolsin()
 
-Controller -> Empleado : getCM()
+Controller -> Sesion : getCMUsuarioLogueado()
+Sesion -> Usuario: getEmpleado()
+Usuario -> Empleado: getCM()
+note right : creo que falta algo
 
 Controller -> Boundary : mostrarCMUsuario()
 
-Controller -> Bolsin : obtenerCMDestino()
-note right :capaz por encapsulamiento es mejor agregar un esCMDestino()
+Controller -> Controller : obtenerBolsinesCMUsuario()
+loop Mientras hayan bolsines
+    Controller -> Bolsin : esTuCMDestino()
+    note right : creo que falta algo
+    Controller -> Bolsin : sosEnviado()
+    Bolsin -> CambioEstadoBolsin : sosActual()
+    note right : se puede poner el actual:CambioEstadoBolsin aca\ny no tener que ir de nuevo a preguntar\nentiendo que no porque este seria una coleccion
+    Bolsin -> CambioEstadoBolsin : sosEnviado()
+    CambioEstadoBolsin -> Estado : esEnviado()
+end
 
 Controller -> Boundary : mostrarBolsines()
 
@@ -81,8 +97,8 @@ loop por cada remito del bolsín
         Documentacion --> NewCambioEstadoDocumentacion** : new()
     end
 end
-
-Controller -> Notificar : notificarRecepcionBolsin()*
+Controller -> Controller : llamarCu29NotificarRecepcionBolsin()
+Controller -> CUNotificar : <<include>>
 
 Controller -> Boundary : informarEjecucionExitosa()
 
