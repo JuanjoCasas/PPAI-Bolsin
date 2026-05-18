@@ -1,0 +1,53 @@
+@startuml "Maquina de estados de REmito"
+hide empty description
+
+[*] --> Registrada : new()
+Creado -> Creado : agregarDocumentacion()
+Creado --> EnBolsinSaliente : agregarABolsin()
+Creado --> Cancelado : cancelar()
+
+EnBolsinSaliente -> Creado : quitarDeBolsin()
+EnBolsinSaliente --> EnBolsinEnviado : retirarBolsin()
+
+state "RecibidaYAceptada" as RecYAcep
+state "RecibidoYAceptadoParcial" as RecYAcepParc
+
+EnBolsinEnviado --> RecYAcep : recibir()
+EnBolsinEnviado ---> RecYAcepParc : recibir()
+
+RecYAcep -> [*]
+RecYAcepParc -> [*]
+
+Cancelado -> [*]
+
+
+
+@enduml
+@startuml "Maquina de estados de Documentación"
+hide empty description
+
+[*] -> Registrada : 7. Registrar Documentacion\nnew()
+Registrada --> EnRemito : 15. Generar Remito\nIncluirEnRemito()
+
+EnRemito -> Registrada : 17. Cancelar Remito\ncancelarRemito()
+
+EnRemito --> EnBolsinSaliente : 19. Generar Bolsín\nagregarABolsin()
+
+EnBolsinSaliente -> EnRemito : 21. Eliminar Bolsín\n20. Modificar Bolsín\nquitarDeBolsin()
+
+EnBolsinSaliente --> EnBolsinEnviado : 27. Registrar el retiro de bolsines\nretirarBolsin()
+
+EnBolsinEnviado --> RecibidaYAceptada: 28. Registrar recepción de bolsín\n[]
+EnBolsinEnviado -> NoRecibida: 28. Registrar recepción de bolsín
+NoRecibida -> Registrada: 31. Registrar Revisión de Documentación
+NoRecibida -> DeBaja: 31. Registrar Revisión de Documentación
+EnBolsinEnviado -> RecibidaYRechazada: 28. Registrar recepción de bolsín
+RecibidaYRechazada -> Registrada 
+EnBolsinEnviado --> ParaRedirigir: 28. Registrar recepción de bolsín
+ParaRedirigir --> RecibidaYAceptada
+ParaRedirigir --> RecibidaYRechazada
+RecibidaYAceptada --> [*]
+DeBaja --> [*]
+@enduml
+
+note right of RecibidaYRechazada : no me queda claro si pasa a EnRemito o Registrada

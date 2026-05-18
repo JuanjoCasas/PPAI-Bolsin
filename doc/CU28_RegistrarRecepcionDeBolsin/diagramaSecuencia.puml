@@ -8,12 +8,13 @@ actor ":EB" as EB
 
 boundary ":BoundaryRegistrarRecepcionBolsin" as Boundary
 control ":ControllerRegistrarRecepcionBolsin" as Controller
-entity ":Sesion" as Sesion
-entity ":Usuario" as Usuario
+entity "activa:Sesion" as Sesion
+entity "activo:Usuario" as Usuario
 entity "logueado:Empleado" as Empleado
 entity ":ComisionMedica" as ComisionMedica
 entity ":Bolsin" as Bolsin
 entity ":CambioEstadoBolsin" as CambioEstadoBolsin
+entity "actual:CambioEstadoBolsin" as ActCambioEstadoBolsin
 entity "nuevo:CambioEstadoBolsin" as NewCambioEstadoBolsin
 entity ":Estado" as Estado
 entity "seleccion:Bolsin" as BolsinSelecciondo
@@ -31,22 +32,21 @@ Boundary -> Boundary : habilitarPantalla()
 
 Boundary --> Controller ** : opcionRegistrarBolsin()
 
+Controller -> Controller : getCMUsuarioLogueado()
 Controller -> Sesion : getCMUsuarioLogueado()
 Sesion -> Usuario: getEmpleado()
 Usuario -> Empleado: getCM()
-note right : creo que falta algo
+Empleado -> ComisionMedica : getNombre()
 
 Controller -> Boundary : mostrarCMUsuario()
 
 Controller -> Controller : obtenerBolsinesCMUsuario()
 loop Mientras hayan bolsines
-    Controller -> Bolsin : esTuCMDestino()
-    note right : creo que falta algo
+    Controller -> Bolsin : esTuCMOrigen()
     Controller -> Bolsin : sosEnviado()
-    Bolsin -> CambioEstadoBolsin : sosActual()
-    note right : se puede poner el actual:CambioEstadoBolsin aca\ny no tener que ir de nuevo a preguntar\nentiendo que no porque este seria una coleccion
-    Bolsin -> CambioEstadoBolsin : sosEnviado()
-    CambioEstadoBolsin -> Estado : esEnviado()
+    Bolsin -> CambioEstadoBolsin : sosActual()*
+    Bolsin -> ActCambioEstadoBolsin : sosEnviado()
+    ActCambioEstadoBolsin -> Estado : esEnviado()
 end
 
 Controller -> Boundary : mostrarBolsines()
@@ -54,16 +54,24 @@ Controller -> Boundary : mostrarBolsines()
 EB -> Boundary : seleccionarBolsin()
 Boundary -> Controller : tomarSeleccionBolsin()
 
+Controller -> Controller : obtenerInformacionRemito()
 Controller -> BolsinSelecciondo : obtenerInformacionRemito()
-BolsinSelecciondo -> Remito : getDatosRemito()
-Remito -> DetalleRemito : mostrarDocumentacion()
-DetalleRemito -> Documentacion : getDatosDocumentacion()
-DetalleRemito -> Documentacion : getTipoDocumentacion()
-Documentacion -> TipoDocumento : getNombre()
+loop mientras haya remitos
+    BolsinSelecciondo -> Remito : getDatosRemito()
+    Remito -> Remito : getNumero()
+    Remito -> Remito : mostrarDocumentacionIncluida()
+    
+    loop mientras haya detalles remitos
+        Remito -> DetalleRemito : mostrarDocumentacion()
+        DetalleRemito -> Documentacion : getDatosDocumentacion()
+        Documentacion -> Documentacion : getAsuntoDocumentacion()
+        DetalleRemito -> Documentacion : getTipoDocumentacion()
+        Documentacion -> TipoDocumento : getNombre()
+    end
+end
 
 Controller -> Boundary : mostrarDetalleBolsin()
 Controller -> Boundary : mostrarOpcionesRecepcionBolsin()
-note right : entiendo que el controlador deberia ir a buscar las opciones a algun lado y despues las muestro
 
 EB -> Boundary : seleccionaOpcionContenidoCoincide()
 Boundary -> Controller : tomarOpcionRecepcion()
@@ -73,21 +81,32 @@ Controller -> Boundary : pedirConfirmacion()
 EB -> Boundary : confirmar()
 Boundary -> Controller : confirmarRecepcion()
 
-Controller -> Estado : esRecibidoENCMDestino()*
+Controller -> Controller : RegistrarReepcion()
+loop mientras haya estados
+    Controller -> Estado : esAmbitoBolsin()
+    Controller -> Estado : esRecibidoENCMDestino()
+end
+loop mientras haya estados
+    Controller -> Estado : esAmbitoRemito()
+    Controller -> Estado : esRecibidoYAceptado()
+end
+loop mientras haya estados
+    Controller -> Estado : esAmbitoDocumentacion()
+    Controller -> Estado : esRecibidoYAceptada()
+end
+
+Controller -> Controller : getFecha()
 
 Controller -> BolsinSelecciondo : actualizarEstado()
-BolsinSelecciondo -> CambioEstadoBolsin : sosActual()*
-BolsinSelecciondo -> CambioEstadoBolsin : setFechaHoraFin()
+BolsinSelecciondo -> ActCambioEstadoBolsin : setFechaHoraFin()
 BolsinSelecciondo --> NewCambioEstadoBolsin** : new()
-note right : se asume que el new setea empleado y hora inicio? o hay que agregar el metodo a la clase? 
 
-Controller -> Estado : esRecibidoYAceptado()*
-Controller -> Estado : esRecibidoYAceptada()*
-Controller -> BolsinSelecciondo : actualizarEstadoRemito()
+BolsinSelecciondo -> BolsinSelecciondo : actualizarEstadoRemito()
 
 loop por cada remito del bolsín
 
     BolsinSelecciondo -> Remito : setEstado()
+    Remito -> Remito : actualizarEstadoDoc()
 
     loop por cada documentación del remito
         Remito -> DetalleRemito : actualizarEstadoDoc()

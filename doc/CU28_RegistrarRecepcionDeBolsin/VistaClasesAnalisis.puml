@@ -212,8 +212,6 @@ Empleado --> "1" Usuario
 Usuario ..> Empleado
 ControllerRegistrarRecepcionBolsin ..> Bolsin
 
-ControllerRegistrarRecepcionBolsin ..> ControllerNotificarRecepcionBolsin
-
 ComisionMedica "1" <-- Empleado : asignadoA
 Empleado --> "1" Rol : rol
 
