@@ -1,28 +1,3 @@
-@startuml "Maquina de estados de REmito"
-hide empty description
-
-[*] --> Registrada : new()
-Creado -> Creado : agregarDocumentacion()
-Creado --> EnBolsinSaliente : agregarABolsin()
-Creado --> Cancelado : cancelar()
-
-EnBolsinSaliente -> Creado : quitarDeBolsin()
-EnBolsinSaliente --> EnBolsinEnviado : retirarBolsin()
-
-state "RecibidaYAceptada" as RecYAcep
-state "RecibidoYAceptadoParcial" as RecYAcepParc
-
-EnBolsinEnviado --> RecYAcep : recibir()
-EnBolsinEnviado ---> RecYAcepParc : recibir()
-
-RecYAcep -> [*]
-RecYAcepParc -> [*]
-
-Cancelado -> [*]
-
-
-
-@enduml
 @startuml "Maquina de estados de Documentación"
 hide empty description
 
