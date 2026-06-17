@@ -2,27 +2,27 @@
 hide empty description
 
 [*] -> Registrada : 7. Registrar Documentacion\nnew()
-Registrada --> EnRemito : 15. Generar Remito\nIncluirEnRemito()
 
-EnRemito -> Registrada : 17. Cancelar Remito\ncancelarRemito()
+Registrada --> EnRemito : 15. Generar Remito\n16. Modificar Remito\nIncluirEnRemito()
 
-EnRemito --> EnBolsinSaliente : 19. Generar Bolsín\nagregarABolsin()
+EnRemito -> Registrada : 17. Cancelar Remito\n16. Modificar Remito\ncancelarRemito()
+
+EnRemito --> EnBolsinSaliente : 19. Generar Bolsín\n20. Modificar Bolsín\nagregarABolsin()
 
 EnBolsinSaliente -> EnRemito : 21. Eliminar Bolsín\n20. Modificar Bolsín\nquitarDeBolsin()
 
-EnBolsinSaliente --> EnBolsinEnviado : 27. Registrar el retiro de bolsines\nretirarBolsin()
+EnBolsinSaliente ---> EnBolsinEnviado : 27. Registrar el retiro de bolsines\nretirarBolsin()
 
-EnBolsinEnviado --> RecibidaYAceptada: 28. Registrar recepción de bolsín\n[]
-EnBolsinEnviado -> NoRecibida: 28. Registrar recepción de bolsín
-NoRecibida -> Registrada: 31. Registrar Revisión de Documentación
-NoRecibida -> DeBaja: 31. Registrar Revisión de Documentación
-EnBolsinEnviado -> RecibidaYRechazada: 28. Registrar recepción de bolsín
-RecibidaYRechazada -> Registrada 
-EnBolsinEnviado --> ParaRedirigir: 28. Registrar recepción de bolsín
-ParaRedirigir --> RecibidaYAceptada
-ParaRedirigir --> RecibidaYRechazada
+EnBolsinEnviado --> RecibidaYAceptada: 28. Registrar recepción de bolsín\n[el contendido del bolsin \nes igual al registrado\nY CM destino != CMC\n Y corresponde a CM destino=SI]\naceptar()
+EnBolsinEnviado -> NoRecibida: 31. Registrar Revisión de Documentación\n[el contendido del bolsin \nNO es igual al registrado\nY CM destino != CMC\n Y corresponde a CM destino=SI]\ndocNoRecibida()
+NoRecibida -> Registrada: 31. Registrar Revisión de Documentación\n[es relevante=SI]\nreenviarDocumentacion()
+NoRecibida --> DeBaja: 9. Eliminar Documentación\n31. Registrar Revisión de Documentación\n[es relevante=NO]\neliminarDocumentacion()
+EnBolsinEnviado -> RecibidaYRechazada: 31. Registrar Revisión de Documentación\n[el contendido del bolsin \nes igual al registrado\nY CM destino != CMC\n Y corresponde a CM destino=NO]\nrecibirYRechazar()
+RecibidaYRechazada -> Registrada: 31. Registrar Revisión de Documentación\nreenviarDocumentacion()
+EnBolsinEnviado --> ParaRedirigir: 28. Registrar recepción de bolsín\n[el contendido del bolsin \nes igual al registrado\nY CM destino = CMC\n Y corresponde a CM destino=SI]\nredirigir()
+ParaRedirigir --> RecibidaYAceptada: 31. Registrar Revisión de Documentación\n[Documentacion rechazada=NO]\naceptar()
+ParaRedirigir --> RecibidaYRechazada: 31. Registrar Revisión de Documentación\n[Documentacion rechazada=SI]\nrecibirYRechazar()
 RecibidaYAceptada --> [*]
 DeBaja --> [*]
-@enduml
 
-note right of RecibidaYRechazada : no me queda claro si pasa a EnRemito o Registrada
+@enduml

@@ -1,14 +1,13 @@
 @startuml "RegistrarRecepcionDeBolsin"
 
 class BoundaryRegistrarRecepcionBolsin <<boundary>> {
-  cmUsuario
+  lblCMUsuario
   bolsinesEntrantes
-  bolsinSeleccionado
-  remitos
-  opcionesRecepcionBolsin
-  opcionesRecepcionSeleccionada
-  confirmarRecepcion
-  ejecucionExitosa
+  grdBolsinSeleccionado
+  grdRemitos
+  rdBtnOpcionesRecepcionBolsin
+  btnConfirmarRecepcion
+  ModalEjecucionExitosa
   opcionRegistrarBolsin()
   habilitarPantalla()
   mostrarCMUsuario()
@@ -23,15 +22,21 @@ class BoundaryRegistrarRecepcionBolsin <<boundary>> {
 }
 
 class ControllerRegistrarRecepcionBolsin <<control>> { 
+  estados
   sesionActiva
   empleadoLogueado
   cmUsuarioLogueado
   bolsinesEntrantes
   bolsinSeleccionado
-  remitos
+  cambioEstadoActualBolsinSeleccionado
+  remitosDelBolsinSelecionado
   opcionesRecepcionBolsin
-  opcionesRecepcionSeleccionada
+  opcionesRecepcionBolsinSeleccionada
   confirmarRecepcion
+  estadoBolsinRecibidoENCMDestino
+  estadoRemitoRecibidoYAceptado
+  estadoDocumentacionRecibidaYAceptada
+  fechaHoraActual
   ejecucionExitosa
   obtenerBolsinesCMUsuario()
   opcionRegistrarBolsin()
@@ -93,14 +98,6 @@ class Bolsin <<entity>> {
   sosEnviado()
   actualizarEstado()
   actualizarEstadoRemito()
-  agregarRemito()
-  eliminar()
-  cerrar()
-  romperPrecinto()
-  eliminar()
-  finJornadaLaboral()
-  retirado()
-  recibir()
 }
 
 class Remito <<entity>> {
@@ -115,16 +112,9 @@ class Remito <<entity>> {
   mostrarInformacionRemito()
   new()
   setEstado()
-  setEstado()
   tenesEstaCMDestino()
   tenesEstaCMOrigen()
   tomarDocumentacion()
-  agregarDocumentacion()
-  agregarABolsin()
-  cancelar()
-  quitarDeBolsin()
-  retirarBolsin()
-  recibir()
 }
 
 class CambioEstadoBolsin <<entity>> {
@@ -168,6 +158,17 @@ class Documentacion <<entity>> {
   new()
   remitar()
   setEstado()
+  incluirEnRemito()
+  cancelarRemito()
+  agregarABolsin()
+  quitarDeBolsin()
+  retirarBolsin()
+  docNoRecibida()
+  recibirYRechazar()
+  redirigir()
+  reenviarDocumentacion()
+  eliminarDocumentacion()
+
 }
 
 class TipoDocumento <<entity>> {

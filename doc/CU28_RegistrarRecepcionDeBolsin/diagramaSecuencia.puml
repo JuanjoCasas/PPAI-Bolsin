@@ -44,9 +44,11 @@ Controller -> Controller : obtenerBolsinesCMUsuario()
 loop Mientras hayan bolsines
     Controller -> Bolsin : esTuCMOrigen()
     Controller -> Bolsin : sosEnviado()
-    Bolsin -> CambioEstadoBolsin : sosActual()*
+    Bolsin -> CambioEstadoBolsin : &#42;  sosActual()
     Bolsin -> ActCambioEstadoBolsin : sosEnviado()
     ActCambioEstadoBolsin -> Estado : esEnviado()
+    Controller -> Bolsin : getNroPrecinto()
+    Controller -> Bolsin : getCMOrigen()
 end
 
 Controller -> Boundary : mostrarBolsines()
@@ -75,6 +77,7 @@ Controller -> Boundary : mostrarOpcionesRecepcionBolsin()
 
 EB -> Boundary : seleccionaOpcionContenidoCoincide()
 Boundary -> Controller : tomarOpcionRecepcion()
+Controller -> Controller : validarOpcion()
 
 Controller -> Boundary : pedirConfirmacion()
 
@@ -92,7 +95,7 @@ loop mientras haya estados
 end
 loop mientras haya estados
     Controller -> Estado : esAmbitoDocumentacion()
-    Controller -> Estado : esRecibidoYAceptada()
+    Controller -> Estado : esRecibidaYAceptada()
 end
 
 Controller -> Controller : getFecha()
@@ -111,7 +114,7 @@ loop por cada remito del bolsín
     loop por cada documentación del remito
         Remito -> DetalleRemito : actualizarEstadoDoc()
         DetalleRemito -> Documentacion : setEstado()
-        Documentacion -> CambioEstadoDocumentacion : sosActual()*
+        Documentacion -> CambioEstadoDocumentacion : &#42; sosActual()
         Documentacion -> CambioEstadoDocumentacion : setFechaHoraFin()
         Documentacion --> NewCambioEstadoDocumentacion** : new()
     end
