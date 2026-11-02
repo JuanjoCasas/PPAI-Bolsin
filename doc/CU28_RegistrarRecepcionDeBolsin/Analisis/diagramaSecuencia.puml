@@ -50,6 +50,7 @@ group loop Para todos los bolsines de la CM del usuario [Mientras hayan bolsines
     ActCambioEstadoBolsin -> Estado : esEnviado()
     Controller -> Bolsin : getNroPrecinto()
     Controller -> Bolsin : getCMOrigen()
+    Bolsin -> ComisionMedica : getNombre()
 end
 
 Controller -> Boundary : mostrarBolsines()
