@@ -113,7 +113,7 @@ loop por cada remito del bolsín
 
     loop por cada documentación del remito
         Remito -> DetalleRemito : actualizarEstadoDoc()
-        DetalleRemito -> Documentacion : setEstado()
+        DetalleRemito -> Documentacion : aceptar()
         Documentacion -> CambioEstadoDocumentacion : &#42; sosActual()
         Documentacion -> CambioEstadoDocumentacion : setFechaHoraFin()
         Documentacion --> NewCambioEstadoDocumentacion** : new()
