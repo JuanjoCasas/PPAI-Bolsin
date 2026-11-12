@@ -1,0 +1,230 @@
+@startuml "CU28 - Vista Estatica STATE"
+skinparam classAttributeIconSize 0
+title CU 28 Registrar recepción de bolsín - Vista Estática (Patrón State)
+
+class BoundaryRegistrarRecepcionBolsin <<boundary>> {
+  - lblCMUsuario: Label
+  - grdBolsinesEntrantes: Grid
+  - grdBolsinSeleccionado: Grid
+  - grdRemitos: Grid
+  - rdBtnOpcionesRecepcionBolsin: RadioButton
+  - btnConfirmarRecepcion: Button
+  - modalEjecucionExitosa: Modal
+  + opcionRegistrarBolsin(): void
+  - habilitarPantalla(): void
+  + mostrarCMUsuario(nombreCM: String): void
+  + mostrarBolsines(datosBolsines: String[][]): void
+  + seleccionarBolsin(): void
+  + mostrarDetalleBolsin(datosRemitos: String[][]): void
+  + mostrarOpcionesRecepcionBolsin(opciones: String[]): void
+  + seleccionaOpcionContenidoCoincide(): void
+  + pedirConfirmacion(): void
+  + confirmar(): void
+  + informarEjecucionExitosa(): void
+}
+
+class ControllerRegistrarRecepcionBolsin <<control>> {
+  - sesionActiva: Sesion
+  - empleadoLogueado: Empleado
+  - cmUsuarioLogueado: ComisionMedica
+  - bolsinesEntrantes: Bolsin[]
+  - bolsinSeleccionado: Bolsin
+  - remitosDelBolsinSeleccionado: Remito[]
+  - opcionesRecepcionBolsin: String[]
+  - opcionRecepcionBolsinSeleccionada: String
+  - estados: Estado[]
+  - estadoBolsinRecibidoENCMDestino: Estado
+  - estadoRemitoRecibidoYAceptado: Estado
+  - fechaHoraActual: DateTime
+  + opcionRegistrarBolsin(): void
+  - getCMUsuarioLogueado(): ComisionMedica
+  - obtenerBolsinesCMUsuario(): void
+  + tomarSeleccionBolsin(bolsin: Bolsin): void
+  - obtenerInformacionRemito(): void
+  + tomarOpcionRecepcion(opcion: String): void
+  - validarOpcion(): boolean
+  + confirmarRecepcion(): void
+  - registrarRecepcion(): void
+  - getFecha(): DateTime
+  - llamarCu29NotificarRecepcionBolsin(): void
+  - finCU(): void
+}
+
+class Bolsin <<entity>> {
+  - fecha: Date
+  - numeroBolsin: int
+  - numeroPrecinto: int
+  - peso: float
+  + esTuCMDestino(cm: ComisionMedica): boolean
+  + sosEnviado(): boolean
+  + getNroPrecinto(): int
+  + getCMOrigen(): ComisionMedica
+  + obtenerInformacionRemito(): String[][]
+  + actualizarEstado(estado: Estado, fechaHoraActual: DateTime, responsable: Empleado): void
+  - actualizarEstadoRemito(estadoRemito: Estado, fechaHoraActual: DateTime, responsable: Empleado): void
+}
+
+class Remito <<entity>> {
+  - fecha: Date
+  - numero: int
+  + getDatosRemito(): String[]
+  + setEstado(estado: Estado, fechaHoraActual: DateTime, responsable: Empleado): void
+  - actualizarEstadoDoc(fechaHoraActual: DateTime, responsable: Empleado): void
+}
+
+class DetalleRemito <<entity>> {
+  - areaCMCDestino: String
+  + mostrarDocumentacion(): String[]
+  + actualizarEstadoDoc(fechaHoraActual: DateTime, responsable: Empleado): void
+}
+
+class Documentacion <<entity>> {
+  - numero: int
+  - asunto: String
+  - fechaPase: Date
+  + getDatosDocumentacion(): String[]
+  + getAsuntoDocumentacion(): String
+  + getTipoDocumentacion(): String
+  + aceptar(fechaHoraActual: DateTime, responsable: Empleado): void
+  + setEstado(estado: EstadoDocumentacion): void
+  + agregarCambioEstado(cambioEstado: CambioEstadoDocumentacion): void
+  + incluirEnRemito(): void
+  + cancelarRemito(): void
+  + agregarABolsin(): void
+  + modificarBolsin(): void
+  + quitarDeBolsin(): void
+  + retirarBolsin(): void
+  + docNoRecibida(): void
+  + recibirYRechazar(): void
+  + redirigir(): void
+  + reenviarDocumentacion(): void
+  + eliminarDocumentacion(): void
+}
+
+class CambioEstadoDocumentacion <<entity>> {
+  - fechaHoraInicio: DateTime
+  - fechaHoraFin: DateTime
+  + new(fechaHoraInicio: DateTime, estado: EstadoDocumentacion, responsable: Empleado): CambioEstadoDocumentacion
+  + setFechaHoraFin(fechaHoraFin: DateTime): void
+  + sosActual(): boolean
+}
+
+class Empleado <<entity>> {
+  - apellido: String
+  - email: String
+  - nombre: String
+}
+
+abstract class EstadoDocumentacion {
+  - nombre: String
+  - descripcion: String
+  + getNombre(): String
+  + aceptar(this: Documentacion, fechaHoraActual: DateTime, responsable: Empleado, historiales: CambioEstadoDocumentacion[]): void
+  + incluirEnRemito(): void
+  + cancelarRemito(): void
+  + agregarABolsin(): void
+  + modificarBolsin(): void
+  + quitarDeBolsin(): void
+  + retirarBolsin(): void
+  + docNoRecibida(): void
+  + recibirYRechazar(): void
+  + redirigir(): void
+  + reenviarDocumentacion(): void
+  + eliminarDocumentacion(): void
+}
+
+class Registrada {
+  + new(): Registrada
+  + incluirEnRemito(): void
+  + eliminarDocumentacion(): void
+}
+
+class EnRemito {
+  + new(): EnRemito
+  + cancelarRemito(): void
+  + agregarABolsin(): void
+}
+
+class EnBolsinSaliente {
+  + new(): EnBolsinSaliente
+  + modificarBolsin(): void
+  + quitarDeBolsin(): void
+  + retirarBolsin(): void
+}
+
+class EnBolsinEnviado {
+  + new(): EnBolsinEnviado
+  + aceptar(this: Documentacion, fechaHoraActual: DateTime, responsable: Empleado, historiales: CambioEstadoDocumentacion[]): void
+  + docNoRecibida(): void
+  + recibirYRechazar(): void
+  + redirigir(): void
+  - cambiarEstado(fechaHoraActual: DateTime, historiales: CambioEstadoDocumentacion[]): void
+  - crearEstado(): RecibidaYAceptada
+  - crearCambioEstado(fechaHoraActual: DateTime, estado: EstadoDocumentacion, responsable: Empleado): CambioEstadoDocumentacion
+}
+
+class NoRecibida {
+  + new(): NoRecibida
+  + reenviarDocumentacion(): void
+  + eliminarDocumentacion(): void
+}
+
+class RecibidaYRechazada {
+  + new(): RecibidaYRechazada
+  + reenviarDocumentacion(): void
+}
+
+class ParaRedirigir {
+  + new(): ParaRedirigir
+  + aceptar(this: Documentacion, fechaHoraActual: DateTime, responsable: Empleado, historiales: CambioEstadoDocumentacion[]): void
+  + recibirYRechazar(): void
+}
+
+class RecibidaYAceptada {
+  + new(): RecibidaYAceptada
+}
+
+class DeBaja {
+  + new(): DeBaja
+}
+
+' --- Relaciones de la realización del CU ---
+BoundaryRegistrarRecepcionBolsin ..> ControllerRegistrarRecepcionBolsin
+ControllerRegistrarRecepcionBolsin ..> BoundaryRegistrarRecepcionBolsin
+ControllerRegistrarRecepcionBolsin ..> Bolsin
+ControllerRegistrarRecepcionBolsin ..> Empleado
+
+Bolsin o--> "1..*" Remito : remito
+Remito o--> "1..*" DetalleRemito : detalleRemito
+DetalleRemito --> "1" Documentacion : documentacion
+
+' --- Patrón State ---
+Documentacion --> "1" EstadoDocumentacion : estadoActual
+Documentacion --> "1..*" CambioEstadoDocumentacion : cambioEstado
+CambioEstadoDocumentacion --> "1" EstadoDocumentacion : estado
+CambioEstadoDocumentacion --> "1" Empleado : responsableCE
+
+EstadoDocumentacion <|-- Registrada
+EstadoDocumentacion <|-- EnRemito
+EstadoDocumentacion <|-- EnBolsinSaliente
+EstadoDocumentacion <|-- EnBolsinEnviado
+EstadoDocumentacion <|-- NoRecibida
+EstadoDocumentacion <|-- RecibidaYRechazada
+EstadoDocumentacion <|-- ParaRedirigir
+EstadoDocumentacion <|-- RecibidaYAceptada
+EstadoDocumentacion <|-- DeBaja
+
+EnBolsinEnviado ..> RecibidaYAceptada : <<create>>
+EnBolsinEnviado ..> CambioEstadoDocumentacion : <<create>>
+EnBolsinEnviado ..> Documentacion
+
+note bottom of EstadoDocumentacion
+  Los métodos de la ME de Documentación se implementan
+  en la clase estado. La implementación por defecto
+  (heredada) rechaza la transición; cada estado concreto
+  sobrescribe solo las transiciones válidas desde él.
+end note
+
+note "Las clases Sesion, Usuario, ComisionMedica, TipoDocumento, Rol,\nEstado (ámbito Bolsín y Remito) y CambioEstadoBolsin\nno se modifican respecto de la vista de análisis." as N1
+
+@enduml

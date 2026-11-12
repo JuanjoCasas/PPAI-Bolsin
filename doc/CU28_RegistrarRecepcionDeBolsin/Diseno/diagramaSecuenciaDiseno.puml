@@ -1,0 +1,70 @@
+@startuml "CU28 - Vista Dinamica STATE"
+skinparam sequenceParticipant underline
+
+title CU 28 Registrar recepción de bolsín - Vista Dinámica (Patrón State)
+
+boundary ":BoundaryRegistrarRecepcionBolsin" as Boundary
+control ":ControllerRegistrarRecepcionBolsin" as Controller
+entity "seleccionado:Bolsin" as Bolsin
+entity ":Remito" as Remito
+entity ":DetalleRemito" as DetalleRemito
+entity ":Documentacion" as Documentacion
+participant ":EnBolsinEnviado" as EnBolsinEnviado
+entity ":CambioEstadoDocumentacion" as CambioEstadoDocumentacion
+entity "actual:CambioEstadoDocumentacion" as ActCambioEstadoDocumentacion
+
+' Método de enganche
+Boundary -> Controller : confirmarRecepcion()
+note right
+  Método de enganche.
+  Los mensajes entre confirmarRecepcion() y getFecha() quedan igual que en el análisis,
+  salvo el loop de búsqueda del estado RecibidaYAceptada de Documentación
+  (esAmbitoDocumentacion() / esRecibidaYAceptada()), que se elimina:
+  ahora el nuevo estado lo crea el estado concreto.
+end note
+
+Controller -> Controller : registrarRecepcion()
+Controller -> Controller : getFecha(): DateTime
+
+Controller -> Bolsin : actualizarEstado(estado: Estado, fechaHoraActual: DateTime, responsable: Empleado)
+note right of Bolsin : El cambio de estado del bolsín\nqueda igual que en el análisis.
+
+Bolsin -> Bolsin : actualizarEstadoRemito(estadoRemito: Estado, fechaHoraActual: DateTime, responsable: Empleado)
+
+group loop Para cada remito del bolsín [mientras el bolsín tenga remitos]
+    Bolsin -> Remito : setEstado(estado: Estado, fechaHoraActual: DateTime, responsable: Empleado)
+    Remito -> Remito : actualizarEstadoDoc(fechaHoraActual: DateTime, responsable: Empleado)
+
+    group loop Para cada documentación del remito [mientras el remito tenga documentación]
+        Remito -> DetalleRemito : actualizarEstadoDoc(fechaHoraActual: DateTime, responsable: Empleado)
+        DetalleRemito -> Documentacion : aceptar(fechaHoraActual: DateTime, responsable: Empleado)
+
+        ' Delegación al estado actual
+        Documentacion -> EnBolsinEnviado : aceptar(this: Documentacion, fechaHoraActual: DateTime, responsable: Empleado, historiales: CambioEstadoDocumentacion[])
+
+        ' Comportamiento delegado asociado al momento
+        EnBolsinEnviado -> EnBolsinEnviado : cambiarEstado(fechaHoraActual: DateTime, historiales: CambioEstadoDocumentacion[])
+        EnBolsinEnviado -> CambioEstadoDocumentacion : &#42; sosActual(): boolean
+        EnBolsinEnviado -> ActCambioEstadoDocumentacion : setFechaHoraFin(fechaHoraFin: DateTime)
+
+        EnBolsinEnviado -> EnBolsinEnviado : crearEstado(): RecibidaYAceptada
+        create participant "nuevo:RecibidaYAceptada" as NuevoEstado
+        EnBolsinEnviado --> NuevoEstado : new(): RecibidaYAceptada
+
+        EnBolsinEnviado -> EnBolsinEnviado : crearCambioEstado(fechaHoraActual: DateTime, estado: EstadoDocumentacion, responsable: Empleado)
+        create entity "nuevo:CambioEstadoDocumentacion" as NuevoCambioEstado
+        EnBolsinEnviado --> NuevoCambioEstado : new(fechaHoraInicio: DateTime, estado: EstadoDocumentacion, responsable: Empleado)
+
+        ' Transición de estado
+        EnBolsinEnviado -> Documentacion : setEstado(estado: EstadoDocumentacion)
+        EnBolsinEnviado -> Documentacion : agregarCambioEstado(cambioEstado: CambioEstadoDocumentacion)
+    end
+end
+
+note over Controller
+  Los mensajes posteriores (llamarCu29NotificarRecepcionBolsin(),
+  <<include>> CU 29, informarEjecucionExitosa() y finCU())
+  quedan igual que en el análisis.
+end note
+
+@enduml
