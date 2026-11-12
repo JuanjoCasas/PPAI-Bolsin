@@ -4,7 +4,6 @@ hide empty description
 [*] -> Registrada : 7. Registrar Documentacion\nnew()
 
 Registrada --> EnRemito : 15. Generar Remito\n16. Modificar Remito\nIncluirEnRemito()
-Registrada --> DeBaja : nose a que CU
 
 Registrada --> DeBaja : 9. Eliminar Documentación\neliminarDocumentacion()
 
@@ -13,7 +12,7 @@ EnRemito -> Registrada : 17. Cancelar Remito\n16. Modificar Remito\ncancelarRemi
 EnRemito --> EnBolsinSaliente : 19. Generar Bolsín\n20. Modificar Bolsín\nagregarABolsin()
 
 EnBolsinSaliente -> EnBolsinSaliente : 20. Modificar Bolsín\n[Revisar que guarda necesitamos]
-EnBolsinSaliente -> EnRemito : 21. Eliminar Bolsín\n20. Modificar Bolsín20. Modificar Bolsín\n[Revisar que guarda necesitamos]\nquitarDeBolsin()
+EnBolsinSaliente -> EnRemito : 21. Eliminar Bolsín\n20. Modificar Bolsín\n[Revisar que guarda necesitamos]\nquitarDeBolsin()
 
 EnBolsinSaliente ---> EnBolsinEnviado : 27. Registrar el retiro de bolsines\nretirarBolsin()
 
