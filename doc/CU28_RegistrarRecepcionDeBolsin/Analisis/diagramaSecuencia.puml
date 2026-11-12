@@ -115,7 +115,7 @@ group loop Para cada remito del bolsin [mintras el bolsin tenga remitos]
 
     group loop para cada documentación del remito [mintras el remito tenga documentos]
         Remito -> DetalleRemito : actualizarEstadoDoc()
-        DetalleRemito -> Documentacion : setEstado()
+        DetalleRemito -> Documentacion : aceptar()
         Documentacion -> CambioEstadoDocumentacion : &#42; sosActual()
         Documentacion -> ActCambioEstadoDocumentacion : setFechaHoraFin()
         Documentacion --> NewCambioEstadoDocumentacion** : new()

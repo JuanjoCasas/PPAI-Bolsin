@@ -6,6 +6,8 @@ hide empty description
 Registrada --> EnRemito : 15. Generar Remito\n16. Modificar Remito\nIncluirEnRemito()
 Registrada --> DeBaja : nose a que CU
 
+Registrada --> DeBaja : 9. Eliminar Documentación\neliminarDocumentacion()
+
 EnRemito -> Registrada : 17. Cancelar Remito\n16. Modificar Remito\ncancelarRemito()
 
 EnRemito --> EnBolsinSaliente : 19. Generar Bolsín\n20. Modificar Bolsín\nagregarABolsin()
