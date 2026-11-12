@@ -38,11 +38,16 @@ class ControllerRegistrarRecepcionBolsin <<control>> {
   estadoDocumentacionRecibidaYAceptada
   fechaHoraActual
   ejecucionExitosa
+  getCMUsuarioLogueado()
   obtenerBolsinesCMUsuario()
+  obtenerInformacionRemito()
   opcionRegistrarBolsin()
   tomarSeleccionBolsin()
   tomarOpcionRecepcion()
+  validarOpcion()
   confirmarRecepcion()
+  registrarRecepcion()
+  getFecha()
   llamarCu29NotificarRecepcionBolsin()
   finCU()
 }
@@ -87,6 +92,7 @@ class Bolsin <<entity>> {
   asociarRemito()
   crearCEBolsin()
   esTuCMOrigen()
+  getCMOrigen()
   getNroPrecinto()
   getNumeroBolsin()
   mostrarDatos()
@@ -109,6 +115,7 @@ class Remito <<entity>> {
   getDatosRemito()
   getNumero()
   modificarDocumentacionIncluida()
+  mostrarDocumentacionIncluida()
   mostrarInformacionRemito()
   new()
   setEstado()
@@ -135,7 +142,7 @@ class Estado <<entity>> {
   esAmbitoRemito()
   esEnviado()
   esRecibidaYAceptada()
-  esRecibidoENCMCDestino()
+  esRecibidoENCMDestino()
   esRecibidoYAceptado()
   getAmbito()
   getDescripcion()
@@ -153,7 +160,9 @@ class Documentacion <<entity>> {
   aceptar()
   crearCE()
   getAsunto()
+  getAsuntoDocumentacion()
   getDatosDocumentacion()
+  getTipoDocumentacion()
   mostrarTipoDocumentacion()
   new()
   remitar()
@@ -161,6 +170,7 @@ class Documentacion <<entity>> {
   incluirEnRemito()
   cancelarRemito()
   agregarABolsin()
+  modificarBolsin()
   quitarDeBolsin()
   retirarBolsin()
   docNoRecibida()
@@ -208,9 +218,13 @@ BoundaryRegistrarRecepcionBolsin ..> ControllerRegistrarRecepcionBolsin
 ControllerRegistrarRecepcionBolsin ..> BoundaryRegistrarRecepcionBolsin
 
 ControllerRegistrarRecepcionBolsin ..> Sesion
-Sesion --> "1" Usuario
-Empleado --> "1" Usuario
-Usuario ..> Empleado
+ControllerRegistrarRecepcionBolsin ..> Estado
+ControllerRegistrarRecepcionBolsin ..> Empleado
+ControllerRegistrarRecepcionBolsin ..> ComisionMedica
+ControllerRegistrarRecepcionBolsin ..> Remito
+ControllerRegistrarRecepcionBolsin ..> CambioEstadoBolsin
+Sesion --> "1" Usuario : usuario
+Usuario --> "1" Empleado : empleado
 ControllerRegistrarRecepcionBolsin ..> Bolsin
 
 ComisionMedica "1" <-- Empleado : asignadoA

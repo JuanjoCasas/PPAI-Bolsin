@@ -23,6 +23,7 @@ entity ":DetalleRemito" as DetalleRemito
 entity ":Documentacion" as Documentacion
 entity ":TipoDocumento" as TipoDocumento
 entity ":CambioEstadoDocumentacion" as CambioEstadoDocumentacion
+entity "actual:CambioEstadoDocumentacion" as ActCambioEstadoDocumentacion
 entity "nuevo:CambioEstadoDocumentacion" as NewCambioEstadoDocumentacion
 
 participant "<plain>29 Notificar recepción de bolsín</plain>" as CUNotificar
@@ -41,14 +42,15 @@ Empleado -> ComisionMedica : getNombre()
 Controller -> Boundary : mostrarCMUsuario()
 
 Controller -> Controller : obtenerBolsinesCMUsuario()
-loop Mientras hayan bolsines
-    Controller -> Bolsin : esTuCMOrigen()
+group loop Para todos los bolsines con destino a la CM del usuario [Mientras hayan bolsines]
+    Controller -> Bolsin : esTuCMDestino()
     Controller -> Bolsin : sosEnviado()
     Bolsin -> CambioEstadoBolsin : &#42;  sosActual()
     Bolsin -> ActCambioEstadoBolsin : sosEnviado()
     ActCambioEstadoBolsin -> Estado : esEnviado()
     Controller -> Bolsin : getNroPrecinto()
     Controller -> Bolsin : getCMOrigen()
+    Bolsin -> ComisionMedica : getNombre()
 end
 
 Controller -> Boundary : mostrarBolsines()
@@ -58,12 +60,12 @@ Boundary -> Controller : tomarSeleccionBolsin()
 
 Controller -> Controller : obtenerInformacionRemito()
 Controller -> BolsinSelecciondo : obtenerInformacionRemito()
-loop mientras haya remitos
+group loop Para todos los remitos del bolsin [Mientras haya remitos]
     BolsinSelecciondo -> Remito : getDatosRemito()
     Remito -> Remito : getNumero()
     Remito -> Remito : mostrarDocumentacionIncluida()
     
-    loop mientras haya detalles remitos
+    group loop Para todos los detalles del remito [mientras haya detalles remitos]
         Remito -> DetalleRemito : mostrarDocumentacion()
         DetalleRemito -> Documentacion : getDatosDocumentacion()
         Documentacion -> Documentacion : getAsuntoDocumentacion()
@@ -84,16 +86,16 @@ Controller -> Boundary : pedirConfirmacion()
 EB -> Boundary : confirmar()
 Boundary -> Controller : confirmarRecepcion()
 
-Controller -> Controller : RegistrarReepcion()
-loop mientras haya estados
+Controller -> Controller : registrarRecepcion()
+group loop Para todos los estados [mientras haya estados]
     Controller -> Estado : esAmbitoBolsin()
     Controller -> Estado : esRecibidoENCMDestino()
 end
-loop mientras haya estados
+group loop Para todos los estados [mientras haya estados]
     Controller -> Estado : esAmbitoRemito()
     Controller -> Estado : esRecibidoYAceptado()
 end
-loop mientras haya estados
+group loop Para todos los estados [mientras haya estados]
     Controller -> Estado : esAmbitoDocumentacion()
     Controller -> Estado : esRecibidaYAceptada()
 end
@@ -106,16 +108,16 @@ BolsinSelecciondo --> NewCambioEstadoBolsin** : new()
 
 BolsinSelecciondo -> BolsinSelecciondo : actualizarEstadoRemito()
 
-loop por cada remito del bolsín
+group loop Para cada remito del bolsin [mientras el bolsin tenga remitos]
 
     BolsinSelecciondo -> Remito : setEstado()
     Remito -> Remito : actualizarEstadoDoc()
 
-    loop por cada documentación del remito
+    group loop para cada documentación del remito [mientras el remito tenga documentos]
         Remito -> DetalleRemito : actualizarEstadoDoc()
-        DetalleRemito -> Documentacion : setEstado()
+        DetalleRemito -> Documentacion : aceptar()
         Documentacion -> CambioEstadoDocumentacion : &#42; sosActual()
-        Documentacion -> CambioEstadoDocumentacion : setFechaHoraFin()
+        Documentacion -> ActCambioEstadoDocumentacion : setFechaHoraFin()
         Documentacion --> NewCambioEstadoDocumentacion** : new()
     end
 end
