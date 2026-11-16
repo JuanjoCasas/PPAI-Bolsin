@@ -3,31 +3,31 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1565c0',
-      light: '#5e92f3',
-      dark: '#003c8f',
+      main: '#1a9c8f',
+      light: '#4fc3b5',
+      dark: '#00796b',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#00897b',
-      light: '#4ebaaa',
-      dark: '#005b4f',
+      main: '#d32f2f',
+      light: '#ef5350',
+      dark: '#b71c1c',
       contrastText: '#ffffff',
     },
     success: {
-      main: '#66bb6a',
+      main: '#2e9d6b',
     },
     error: {
-      main: '#f44336',
+      main: '#d32f2f',
     },
     warning: {
       main: '#ff9800',
     },
     info: {
-      main: '#2196f3',
+      main: '#26a69a',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#eef8f6',
       paper: '#ffffff',
     },
   },
@@ -73,6 +73,20 @@ const theme = createTheme({
         root: {
           boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
           borderRadius: 12,
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          borderBottom: '3px solid #d32f2f',
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#e0f4f1',
         },
       },
     },

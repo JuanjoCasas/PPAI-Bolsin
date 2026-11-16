@@ -191,7 +191,7 @@ const Paso1Bolsines = () => {
         )}
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-          <Button variant="outlined" color="inherit" startIcon={<Close />} onClick={handleCancelar} disabled={loading}>
+          <Button variant="outlined" color="secondary" startIcon={<Close />} onClick={handleCancelar} disabled={loading}>
             Cancelar
           </Button>
           <Button

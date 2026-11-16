@@ -134,7 +134,7 @@ const Paso2Detalle = () => {
           </Button>
           <Box sx={{ display: 'flex', gap: 2 }}>
           {/* Observación 1: el EB puede cancelar el caso de uso cuando lo decida */}
-          <Button variant="outlined" color="inherit" startIcon={<Close />} onClick={resetWizard} disabled={loading}>
+          <Button variant="outlined" color="secondary" startIcon={<Close />} onClick={resetWizard} disabled={loading}>
             Cancelar
           </Button>
           <Button

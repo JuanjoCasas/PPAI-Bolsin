@@ -35,8 +35,8 @@ const Sidebar = () => {
         bgcolor: 'background.paper',
       }}
     >
-      <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Typography variant="h6" color="primary" fontWeight="bold">
+      <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider', borderLeft: '4px solid', borderLeftColor: 'secondary.main' }}>
+        <Typography variant="h6" color="secondary" fontWeight="bold">
           CU 28
         </Typography>
         {/* lblCMUsuario: mostrarCMUsuario() */}

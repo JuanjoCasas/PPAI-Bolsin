@@ -5,6 +5,7 @@ backend/target/
 # Frontend (Node)
 front/node_modules/
 front/dist/
+front/.vite/
 
 # IDEs
 .idea/
