@@ -46,7 +46,7 @@ const Paso3Resultado = () => {
 
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <Button variant="contained" size="large" startIcon={<Refresh />} onClick={resetWizard} sx={{ px: 4 }}>
-            Registrar otra recepción
+            Volver al menú principal
           </Button>
         </Box>
       </CardContent>

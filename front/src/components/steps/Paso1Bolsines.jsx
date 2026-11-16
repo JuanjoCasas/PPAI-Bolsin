@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -20,15 +20,13 @@ import {
 } from '@mui/material';
 import { ArrowForward, Close } from '@mui/icons-material';
 import { useRecepcion } from '../../context/RecepcionContext';
-import { opcionRegistrarBolsin, seleccionarBolsin } from '../../services/bolsinService';
+import { seleccionarBolsin } from '../../services/bolsinService';
 
 // grdBolsinesEntrantes: mostrarBolsines() / seleccionarBolsin()
 const Paso1Bolsines = () => {
   const {
     cmUsuario,
-    setCmUsuario,
     bolsines,
-    setBolsines,
     detalleBolsin,
     setDetalleBolsin,
     nextStep,
@@ -73,26 +71,6 @@ const Paso1Bolsines = () => {
     setFiltroCMOrigen('');
     resetWizard();
   };
-
-  // opcionRegistrarBolsin() -> habilitarPantalla()
-  useEffect(() => {
-    const habilitarPantalla = async () => {
-      setLoading(true);
-      const result = await opcionRegistrarBolsin();
-      if (result.success) {
-        setCmUsuario(result.data.cmUsuario);
-        setBolsines(result.data.bolsines);
-      } else {
-        setError(result.message);
-        setLocalError(result.message);
-      }
-      setLoading(false);
-    };
-
-    if (!cmUsuario) {
-      habilitarPantalla();
-    }
-  }, [cmUsuario]);
 
   const handleNext = async () => {
     setLoading(true);

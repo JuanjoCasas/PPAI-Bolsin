@@ -1,6 +1,7 @@
 import { Box, Container, Grid, AppBar, Toolbar, Typography, Snackbar, Alert } from '@mui/material';
 import { Inventory2 } from '@mui/icons-material';
 import Sidebar from './Sidebar';
+import MenuPrincipal from '../MenuPrincipal';
 import { useRecepcion } from '../../context/RecepcionContext';
 
 import Paso1Bolsines from '../steps/Paso1Bolsines';
@@ -9,7 +10,7 @@ import Paso3Resultado from '../steps/Paso3Resultado';
 
 // BoundaryRegistrarRecepcionBolsin (parte visual)
 const MainLayout = () => {
-  const { currentStep, error, setError } = useRecepcion();
+  const { cuIniciado, currentStep, error, setError } = useRecepcion();
 
   const renderStep = () => {
     switch (currentStep) {
@@ -33,6 +34,11 @@ const MainLayout = () => {
         </Toolbar>
       </AppBar>
 
+      {!cuIniciado ? (
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          <MenuPrincipal />
+        </Container>
+      ) : (
       <Box sx={{ flexGrow: 1, display: 'flex' }}>
         <Grid container sx={{ height: '100%' }}>
           <Grid item xs={12} md={3}>
@@ -45,6 +51,7 @@ const MainLayout = () => {
           </Grid>
         </Grid>
       </Box>
+      )}
 
       <Snackbar
         open={!!error}

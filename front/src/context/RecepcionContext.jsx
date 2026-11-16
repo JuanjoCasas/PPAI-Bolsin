@@ -13,6 +13,8 @@ export const useRecepcion = () => {
 };
 
 export const RecepcionProvider = ({ children }) => {
+  // false = menú principal; true = el EB eligió la opción para registrar la recepción (paso 1 del CU)
+  const [cuIniciado, setCuIniciado] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState([]);
 
@@ -48,7 +50,9 @@ export const RecepcionProvider = ({ children }) => {
     }
   };
 
+  // Fin del CU (o cancelación, Obs. 1): vuelve al menú principal
   const resetWizard = () => {
+    setCuIniciado(false);
     setCurrentStep(1);
     setCompletedSteps([]);
     setCmUsuario('');
@@ -60,6 +64,8 @@ export const RecepcionProvider = ({ children }) => {
   };
 
   const value = {
+    cuIniciado,
+    setCuIniciado,
     currentStep,
     completedSteps,
     cmUsuario,
