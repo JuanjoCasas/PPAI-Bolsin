@@ -66,15 +66,20 @@ public abstract class EstadoDocumentacion {
         throw transicionInvalida("retirarBolsin");
     }
 
-    public void docNoRecibida() {
+    // docNoRecibida(), recibirYRechazar() y redirigir() reciben lo mismo que aceptar():
+    // son las transiciones de los flujos alternativos A3, A4 y A5 del CU 28.
+    public void docNoRecibida(Documentacion documentacion, LocalDateTime fechaHoraActual, Empleado responsable,
+            List<CambioEstadoDocumentacion> historiales) {
         throw transicionInvalida("docNoRecibida");
     }
 
-    public void recibirYRechazar() {
+    public void recibirYRechazar(Documentacion documentacion, LocalDateTime fechaHoraActual, Empleado responsable,
+            List<CambioEstadoDocumentacion> historiales) {
         throw transicionInvalida("recibirYRechazar");
     }
 
-    public void redirigir() {
+    public void redirigir(Documentacion documentacion, LocalDateTime fechaHoraActual, Empleado responsable,
+            List<CambioEstadoDocumentacion> historiales) {
         throw transicionInvalida("redirigir");
     }
 

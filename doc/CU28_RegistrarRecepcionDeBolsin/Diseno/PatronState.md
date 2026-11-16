@@ -62,7 +62,7 @@ Hereda de `EstadoDocumentacion` y le da implementación a `aceptar()`:
 3. Crea el nuevo `CambioEstadoDocumentacion` con la fecha y hora de inicio, el nuevo estado y el empleado responsable.
 4. Por último, le indica a la documentación que tiene un nuevo estado y que agregue a su colección el nuevo cambio de estado.
 
-También implementa `docNoRecibida()`, `recibirYRechazar()` y `redirigir()`, que son las demás transiciones que salen de este estado según la ME y corresponden a los flujos alternativos del CU 28 y al CU 31.
+También implementa `docNoRecibida()`, `recibirYRechazar()` y `redirigir()`, que son las demás transiciones que salen de este estado según la ME y corresponden a los flujos alternativos A3, A4 y A5 del CU 28. Reciben los mismos parámetros que `aceptar()` y siguen los mismos pasos; solo cambia el estado que crean (`NoRecibida`, `RecibidaYRechazada` y `ParaRedirigir`).
 
 ### Demás estados concretos
 `Registrada`, `EnRemito`, `EnBolsinSaliente`, `NoRecibida`, `RecibidaYRechazada`, `ParaRedirigir`, `RecibidaYAceptada` y `DeBaja` heredan de `EstadoDocumentacion` y sobrescriben solo las transiciones que salen de cada uno según la máquina de estados. `RecibidaYAceptada` y `DeBaja` son estados finales, así que no sobrescriben ninguna transición.

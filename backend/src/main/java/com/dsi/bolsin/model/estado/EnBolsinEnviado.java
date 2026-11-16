@@ -9,7 +9,11 @@ import com.dsi.bolsin.model.Empleado;
 
 /**
  * Estado concreto en tiempo de ejecución durante el CU 28.
- * Implementa aceptar(): EnBolsinEnviado -> RecibidaYAceptada.
+ * Implementa las cuatro transiciones que salen de este estado en la recepción del bolsín:
+ * - aceptar():          EnBolsinEnviado -> RecibidaYAceptada  (flujo básico)
+ * - docNoRecibida():    EnBolsinEnviado -> NoRecibida          (A3)
+ * - recibirYRechazar(): EnBolsinEnviado -> RecibidaYRechazada  (A4)
+ * - redirigir():        EnBolsinEnviado -> ParaRedirigir       (A5)
  */
 public class EnBolsinEnviado extends EstadoDocumentacion {
 
@@ -20,6 +24,7 @@ public class EnBolsinEnviado extends EstadoDocumentacion {
         super(NOMBRE, "La documentación viaja en un bolsín enviado a la CM destino");
     }
 
+    // Flujo básico: sigue paso a paso el diagrama de secuencia de diseño
     @Override
     public void aceptar(Documentacion documentacion, LocalDateTime fechaHoraActual, Empleado responsable,
             List<CambioEstadoDocumentacion> historiales) {
@@ -37,6 +42,39 @@ public class EnBolsinEnviado extends EstadoDocumentacion {
         documentacion.agregarCambioEstado(nuevoCambioEstado);
     }
 
+    // A3: no se recibe toda la documentación. Mismos pasos que aceptar(), pero crea NoRecibida.
+    @Override
+    public void docNoRecibida(Documentacion documentacion, LocalDateTime fechaHoraActual, Empleado responsable,
+            List<CambioEstadoDocumentacion> historiales) {
+        cambiarEstado(fechaHoraActual, historiales);
+        EstadoDocumentacion nuevoEstado = crearEstadoNoRecibida();
+        CambioEstadoDocumentacion nuevoCambioEstado = crearCambioEstado(fechaHoraActual, nuevoEstado, responsable);
+        documentacion.setEstado(nuevoEstado);
+        documentacion.agregarCambioEstado(nuevoCambioEstado);
+    }
+
+    // A4: la documentación no corresponde a la CM destino. Crea RecibidaYRechazada.
+    @Override
+    public void recibirYRechazar(Documentacion documentacion, LocalDateTime fechaHoraActual, Empleado responsable,
+            List<CambioEstadoDocumentacion> historiales) {
+        cambiarEstado(fechaHoraActual, historiales);
+        EstadoDocumentacion nuevoEstado = crearEstadoRecibidaYRechazada();
+        CambioEstadoDocumentacion nuevoCambioEstado = crearCambioEstado(fechaHoraActual, nuevoEstado, responsable);
+        documentacion.setEstado(nuevoEstado);
+        documentacion.agregarCambioEstado(nuevoCambioEstado);
+    }
+
+    // A5: la documentación se debe redirigir a otra área de la CMC. Crea ParaRedirigir.
+    @Override
+    public void redirigir(Documentacion documentacion, LocalDateTime fechaHoraActual, Empleado responsable,
+            List<CambioEstadoDocumentacion> historiales) {
+        cambiarEstado(fechaHoraActual, historiales);
+        EstadoDocumentacion nuevoEstado = crearEstadoParaRedirigir();
+        CambioEstadoDocumentacion nuevoCambioEstado = crearCambioEstado(fechaHoraActual, nuevoEstado, responsable);
+        documentacion.setEstado(nuevoEstado);
+        documentacion.agregarCambioEstado(nuevoCambioEstado);
+    }
+
     // Loop "* sosActual()" sobre los historiales + actual:CambioEstadoDocumentacion.setFechaHoraFin()
     private void cambiarEstado(LocalDateTime fechaHoraActual, List<CambioEstadoDocumentacion> historiales) {
         for (CambioEstadoDocumentacion cambioEstado : historiales) {
@@ -50,25 +88,20 @@ public class EnBolsinEnviado extends EstadoDocumentacion {
         return new RecibidaYAceptada();
     }
 
+    private NoRecibida crearEstadoNoRecibida() {
+        return new NoRecibida();
+    }
+
+    private RecibidaYRechazada crearEstadoRecibidaYRechazada() {
+        return new RecibidaYRechazada();
+    }
+
+    private ParaRedirigir crearEstadoParaRedirigir() {
+        return new ParaRedirigir();
+    }
+
     private CambioEstadoDocumentacion crearCambioEstado(LocalDateTime fechaHoraActual, EstadoDocumentacion estado,
             Empleado responsable) {
         return new CambioEstadoDocumentacion(fechaHoraActual, estado, responsable);
-    }
-
-    // ---- Transiciones válidas desde EnBolsinEnviado que pertenecen a otros flujos / CU ----
-
-    @Override
-    public void docNoRecibida() {
-        throw fueraDeAlcance("docNoRecibida");
-    }
-
-    @Override
-    public void recibirYRechazar() {
-        throw fueraDeAlcance("recibirYRechazar");
-    }
-
-    @Override
-    public void redirigir() {
-        throw fueraDeAlcance("redirigir");
     }
 }

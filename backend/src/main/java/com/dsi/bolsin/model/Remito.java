@@ -78,6 +78,7 @@ public class Remito {
         return documentos;
     }
 
+    // Flujo básico (diagrama de secuencia de diseño)
     public void setEstado(Estado estado, LocalDateTime fechaHoraActual, Empleado responsable) {
         this.estado = estado;
         actualizarEstadoDoc(fechaHoraActual, responsable);
@@ -88,6 +89,33 @@ public class Remito {
         for (DetalleRemito detalle : detalleRemito) {
             detalle.actualizarEstadoDoc(fechaHoraActual, responsable);
         }
+    }
+
+    /**
+     * Flujos alternativos (A3, A4, A5): la documentación marcada por el EB toma la situación
+     * indicada y el resto se acepta. Si la situación lo requiere (A3, A4) y el remito tiene
+     * documentación marcada, queda en estadoParcial en lugar de estado.
+     */
+    public void setEstadoConSituacion(Estado estado, Estado estadoParcial, List<Integer> documentacionMarcada,
+            SituacionRecepcion situacion, LocalDateTime fechaHoraActual, Empleado responsable) {
+        boolean tieneDocumentacionMarcada = actualizarEstadoDocConSituacion(documentacionMarcada, situacion,
+                fechaHoraActual, responsable);
+        this.estado = tieneDocumentacionMarcada && situacion.dejaRemitoParcial() ? estadoParcial : estado;
+    }
+
+    // Loop: para cada documentación del remito -> actualizarEstadoDoc() / registrarSituacionDoc()
+    private boolean actualizarEstadoDocConSituacion(List<Integer> documentacionMarcada, SituacionRecepcion situacion,
+            LocalDateTime fechaHoraActual, Empleado responsable) {
+        boolean tieneDocumentacionMarcada = false;
+        for (DetalleRemito detalle : detalleRemito) {
+            if (documentacionMarcada.stream().anyMatch(detalle::esDocumentacion)) {
+                detalle.registrarSituacionDoc(situacion, fechaHoraActual, responsable);
+                tieneDocumentacionMarcada = true;
+            } else {
+                detalle.actualizarEstadoDoc(fechaHoraActual, responsable);
+            }
+        }
+        return tieneDocumentacionMarcada;
     }
 
     public Estado getEstado() {

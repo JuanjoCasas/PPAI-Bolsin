@@ -112,6 +112,32 @@ public class Bolsin {
         }
     }
 
+    /**
+     * Flujos alternativos (A3, A4, A5): el bolsín cambia de estado igual que en el flujo básico,
+     * pero cada remito recibe además la documentación marcada por el EB, la situación que le
+     * corresponde y el estado de remito parcial.
+     */
+    public void actualizarEstadoConSituacion(Estado estado, Estado estadoRemito, Estado estadoRemitoParcial,
+            List<Integer> documentacionMarcada, SituacionRecepcion situacion, LocalDateTime fechaHoraActual,
+            Empleado responsable) {
+        CambioEstadoBolsin actual = buscarCambioEstadoActual();
+        if (actual != null) {
+            actual.setFechaHoraFin(fechaHoraActual);
+        }
+        cambioEstado.add(new CambioEstadoBolsin(fechaHoraActual, estado, responsable));
+
+        // Loop: para cada remito del bolsín -> setEstadoConSituacion()
+        for (Remito r : remito) {
+            r.setEstadoConSituacion(estadoRemito, estadoRemitoParcial, documentacionMarcada, situacion,
+                    fechaHoraActual, responsable);
+        }
+    }
+
+    // Flujos alternativos: la documentación que marca el EB tiene que estar en el bolsín
+    public boolean contieneDocumentacion(Integer numeroDocumentacion) {
+        return getDocumentacion().stream().anyMatch(doc -> doc.getNumero().equals(numeroDocumentacion));
+    }
+
     // En el diagrama vamos directo a "actual:CambioEstadoBolsin"; en código hay que buscarlo.
     private CambioEstadoBolsin buscarCambioEstadoActual() {
         return cambioEstado.stream()

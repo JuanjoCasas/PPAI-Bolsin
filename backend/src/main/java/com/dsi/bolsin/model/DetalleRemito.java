@@ -41,6 +41,16 @@ public class DetalleRemito {
         documentacion.aceptar(fechaHoraActual, responsable);
     }
 
+    // Flujos alternativos A3, A4 y A5: la situación decide la transición de la documentación
+    public void registrarSituacionDoc(SituacionRecepcion situacion, LocalDateTime fechaHoraActual,
+            Empleado responsable) {
+        situacion.registrar(documentacion, fechaHoraActual, responsable);
+    }
+
+    public boolean esDocumentacion(Integer numeroDocumentacion) {
+        return documentacion.getNumero().equals(numeroDocumentacion);
+    }
+
     public Documentacion getDocumentacion() {
         return documentacion;
     }

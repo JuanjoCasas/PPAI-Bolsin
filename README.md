@@ -37,10 +37,28 @@ Los nombres de estados, actores y tipos de documento siguen la ERS.
 | 50003 | Rosario → Córdoba | Enviado | Su documentación quedó en `EnBolsinSaliente`: el patrón State rechaza `aceptar()` y se hace rollback |
 | 50004 | Córdoba → Rosario | Enviado | No aparece (otra CM destino) |
 | 50005 | Mendoza → Córdoba | Cerrado | No aparece (todavía no fue enviado) |
+| 50006 | Rosario → Córdoba | Enviado | Para A3: 2 remitos, 3 documentaciones |
+| 50007 | Mendoza → Córdoba | Enviado | Para A4: 1 remito, 2 documentaciones |
+| 50008 | Rosario → Central | Enviado | Para A5: solo lo ve un EB de la CMC (usuario `alopez`) |
 
-Alcance: se implementa el flujo básico (opción 1, *"El contenido del bolsín es igual al registrado"*), el
-filtro por precinto o CM origen (A1, A2), no confirmar (A6) y cancelar el CU (Obs. 1). Las opciones 2 a 4
-(A3, A4, A5) se muestran pero responden que el flujo alternativo no está implementado.
+Alcance: se implementan el flujo básico y todos los flujos alternativos del CU 28, más cancelar el CU (Obs. 1):
+
+| Flujo | Qué hace el EB | Resultado |
+|---|---|---|
+| Básico (opción 1) | Indica que el contenido es igual al registrado | Toda la documentación queda `RecibidaYAceptada`; los remitos, *Recibido y Aceptado* |
+| A1, A2 | Filtra por precinto o CM origen sin resultados | La pantalla informa que no se encontró un bolsín con ese dato |
+| A3 (opción 2) | Marca la documentación que no llegó | La marcada queda `NoRecibida`; su remito, *Recibido y aceptado parcial* |
+| A4 (opción 3) | Marca la documentación que no corresponde al destino | La marcada queda `RecibidaYRechazada`; su remito, *Recibido y aceptado parcial* |
+| A5 (opción 4) | Marca la documentación a redirigir a otra área | La marcada queda `ParaRedirigir`; el remito, *Recibido y Aceptado*. Solo la CMC puede elegir esta opción |
+| A6 | No confirma | No se registra nada |
+
+En A3, A4 y A5 la documentación que no se marca queda recibida y aceptada, y el bolsín pasa a *Recibido en CM
+destino* igual que en el flujo básico. El mail del CU 29 informa el estado en que quedó cada documentación.
+
+Para probar A5 desde la pantalla hay que loguearse como el EB de la CMC: en la consola H2
+(`/h2-console`, JDBC URL `jdbc:h2:mem:bolsinesdb`) ejecutar
+`UPDATE sesiones SET fecha_fin = CURRENT_TIMESTAMP WHERE id = 2; UPDATE sesiones SET fecha_fin = NULL WHERE id = 3;`
+y volver a entrar al CU.
 
 El `<<include>>` al CU 29 *Notificar recepción de bolsín* va de control a control: el controller del CU 28 llama a
 `ControllerNotificarRecepcionBolsin`, que manda un mail a cada CM de origen de la documentación con la situación

@@ -43,6 +43,11 @@ public class ComisionMedica {
         return nombre;
     }
 
+    // A5: solo la Comisión Médica Central (CMC) redirige documentación a un área de la sede central
+    public boolean sosCMC() {
+        return "Comisión Médica Central".equals(nombre);
+    }
+
     // CU 29: dirección a la que se notifica la recepción del bolsín
     public String getEmail() {
         return email;

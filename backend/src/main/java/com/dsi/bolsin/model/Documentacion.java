@@ -117,16 +117,17 @@ public class Documentacion {
         estadoActual.retirarBolsin();
     }
 
-    public void docNoRecibida() {
-        estadoActual.docNoRecibida();
+    // Flujos alternativos del CU 28: A3, A4 y A5
+    public void docNoRecibida(LocalDateTime fechaHoraActual, Empleado responsable) {
+        estadoActual.docNoRecibida(this, fechaHoraActual, responsable, cambioEstado);
     }
 
-    public void recibirYRechazar() {
-        estadoActual.recibirYRechazar();
+    public void recibirYRechazar(LocalDateTime fechaHoraActual, Empleado responsable) {
+        estadoActual.recibirYRechazar(this, fechaHoraActual, responsable, cambioEstado);
     }
 
-    public void redirigir() {
-        estadoActual.redirigir();
+    public void redirigir(LocalDateTime fechaHoraActual, Empleado responsable) {
+        estadoActual.redirigir(this, fechaHoraActual, responsable, cambioEstado);
     }
 
     public void reenviarDocumentacion() {

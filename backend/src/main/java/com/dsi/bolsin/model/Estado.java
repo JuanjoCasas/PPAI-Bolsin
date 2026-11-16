@@ -59,6 +59,10 @@ public class Estado {
         return "Recibido y Aceptado".equals(nombre);
     }
 
+    public boolean esRecibidoYAceptadoParcial() {
+        return "Recibido y aceptado parcial".equals(nombre);
+    }
+
     public String getAmbito() {
         return ambito;
     }

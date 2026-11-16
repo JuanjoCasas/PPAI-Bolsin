@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -21,6 +22,7 @@ import com.dsi.bolsin.model.ComisionMedica;
 import com.dsi.bolsin.model.Empleado;
 import com.dsi.bolsin.model.Estado;
 import com.dsi.bolsin.model.Sesion;
+import com.dsi.bolsin.model.SituacionRecepcion;
 import com.dsi.bolsin.repository.IBolsinRepository;
 import com.dsi.bolsin.repository.IEstadoRepository;
 import com.dsi.bolsin.repository.ISesionRepository;
@@ -57,9 +59,12 @@ public class ControllerRegistrarRecepcionBolsin {
     private List<RemitoResponse> remitosDelBolsinSeleccionado;
     private List<String> opcionesRecepcionBolsin;
     private String opcionRecepcionBolsinSeleccionada;
+    private SituacionRecepcion situacionDocumentacion;     // A3, A4, A5 (null en el flujo básico)
+    private List<Integer> documentacionSeleccionada;       // documentación marcada por el EB en A3, A4, A5
     private List<Estado> estados;
     private Estado estadoBolsinRecibidoENCMDestino;
     private Estado estadoRemitoRecibidoYAceptado;
+    private Estado estadoRemitoRecibidoYAceptadoParcial;
     private LocalDateTime fechaHoraActual;
 
     public ControllerRegistrarRecepcionBolsin(ISesionRepository sesionRepository,
@@ -124,6 +129,7 @@ public class ControllerRegistrarRecepcionBolsin {
         if (bolsinSeleccionado == null) {
             return null;
         }
+        limpiarOpcionRecepcion();
 
         obtenerInformacionRemito(); // -> mostrarDetalleBolsin()
 
@@ -161,15 +167,81 @@ public class ControllerRegistrarRecepcionBolsin {
     // =====================================================================
     // Boundary -> Control : tomarOpcionRecepcion()
     // =====================================================================
+    /**
+     * Devuelve true si la opción es un flujo alternativo (A3, A4, A5): en ese caso el EB
+     * tiene que indicar a qué documentación del bolsín le corresponde la situación.
+     */
     public boolean tomarOpcionRecepcion(String opcion) {
+        if (bolsinSeleccionado == null) {
+            throw new IllegalStateException("Primero hay que seleccionar un bolsín");
+        }
+        limpiarOpcionRecepcion();
+        if (!opcionesRecepcionBolsin.contains(opcion)) {
+            throw new IllegalArgumentException("La opción de recepción seleccionada no es válida");
+        }
+        // A5: la ME solo permite redirigir cuando la CM destino es la CMC
+        if (OPCION_REDIRIGIR.equals(opcion) && !cmUsuarioLogueado.sosCMC()) {
+            throw new IllegalArgumentException("Solo la Comisión Médica Central puede redirigir documentación "
+                    + "a otra área; " + cmUsuarioLogueado.getNombre() + " no es la CMC");
+        }
         this.opcionRecepcionBolsinSeleccionada = opcion;
-        return validarOpcion(); // si es válida -> pedirConfirmacion()
+        this.situacionDocumentacion = getSituacion(opcion);
+        return situacionDocumentacion != null;
     }
 
-    // Solo se implementa el flujo básico (opción 1). Las opciones 2, 3 y 4 son los flujos
-    // alternativos A3, A4 y A5, que quedan fuera del alcance.
+    // Opción 1 (flujo básico) no tiene situación: toda la documentación se acepta
+    private SituacionRecepcion getSituacion(String opcion) {
+        return switch (opcion) {
+            case OPCION_NO_SE_RECIBE_TODA -> SituacionRecepcion.NO_RECIBIDA;
+            case OPCION_NO_CORRESPONDE_DESTINO -> SituacionRecepcion.NO_CORRESPONDE_DESTINO;
+            case OPCION_REDIRIGIR -> SituacionRecepcion.PARA_REDIRIGIR;
+            default -> null;
+        };
+    }
+
+    // =====================================================================
+    // Boundary -> Control : tomarSeleccionDocumentacion()   (A3, A4, A5)
+    // =====================================================================
+    public void tomarSeleccionDocumentacion(List<Integer> numerosDocumentacion) {
+        if (situacionDocumentacion == null) {
+            throw new IllegalStateException("La opción seleccionada no requiere indicar documentación");
+        }
+        if (numerosDocumentacion == null || numerosDocumentacion.isEmpty()) {
+            throw new IllegalArgumentException("Hay que indicar al menos una documentación");
+        }
+        for (Integer numero : numerosDocumentacion) {
+            if (!bolsinSeleccionado.contieneDocumentacion(numero)) {
+                throw new IllegalArgumentException("La documentación N° " + numero + " no está en el bolsín");
+            }
+        }
+        this.documentacionSeleccionada = List.copyOf(numerosDocumentacion);
+    }
+
+    // Control -> Boundary : pedirConfirmacion()
+    public String pedirConfirmacion() {
+        if (!validarOpcion()) {
+            throw new IllegalStateException("Primero hay que seleccionar un bolsín y la opción de recepción");
+        }
+        String mensaje = "¿Confirma la recepción del bolsín precinto N° " + bolsinSeleccionado.getNroPrecinto() + "? ";
+        if (situacionDocumentacion == null) {
+            return mensaje + "Toda su documentación quedará recibida y aceptada.";
+        }
+        String marcada = "la documentación N° " + documentacionSeleccionada.stream()
+                .map(String::valueOf).collect(Collectors.joining(", "));
+        String resto = " y el resto, recibida y aceptada.";
+        return mensaje + switch (situacionDocumentacion) {
+            case NO_RECIBIDA -> marcada + " quedará como no recibida" + resto
+                    + " Sus remitos quedarán recibidos y aceptados en forma parcial.";
+            case NO_CORRESPONDE_DESTINO -> marcada + " quedará recibida y rechazada" + resto
+                    + " Sus remitos quedarán recibidos y aceptados en forma parcial.";
+            case PARA_REDIRIGIR -> marcada + " quedará para redirigir a otra área" + resto;
+        };
+    }
+
+    // Flujo básico: alcanza con la opción. Flujos alternativos: además hace falta la documentación marcada.
     private boolean validarOpcion() {
-        return bolsinSeleccionado != null && OPCION_CONTENIDO_IGUAL.equals(opcionRecepcionBolsinSeleccionada);
+        return bolsinSeleccionado != null && opcionRecepcionBolsinSeleccionada != null
+                && (situacionDocumentacion == null || !documentacionSeleccionada.isEmpty());
     }
 
     // =====================================================================
@@ -216,10 +288,28 @@ public class ControllerRegistrarRecepcionBolsin {
         this.bolsinSeleccionado = bolsinRepository.findById(bolsinSeleccionado.getNumeroBolsin())
                 .orElseThrow(() -> new IllegalStateException("El bolsín seleccionado ya no existe"));
 
-        bolsinSeleccionado.actualizarEstado(estadoBolsinRecibidoENCMDestino, estadoRemitoRecibidoYAceptado,
-                fechaHoraActual, empleadoLogueado);
+        if (situacionDocumentacion == null) {
+            // Flujo básico
+            bolsinSeleccionado.actualizarEstado(estadoBolsinRecibidoENCMDestino, estadoRemitoRecibidoYAceptado,
+                    fechaHoraActual, empleadoLogueado);
+        } else {
+            registrarRecepcionConSituacion();
+        }
 
         bolsinRepository.save(bolsinSeleccionado);
+    }
+
+    // Flujos alternativos A3, A4 y A5
+    private void registrarRecepcionConSituacion() {
+        // Loop: para todos los estados -> esAmbitoRemito() / esRecibidoYAceptadoParcial()
+        for (Estado estado : estados) {
+            if (estado.esAmbitoRemito() && estado.esRecibidoYAceptadoParcial()) {
+                this.estadoRemitoRecibidoYAceptadoParcial = estado;
+            }
+        }
+        bolsinSeleccionado.actualizarEstadoConSituacion(estadoBolsinRecibidoENCMDestino, estadoRemitoRecibidoYAceptado,
+                estadoRemitoRecibidoYAceptadoParcial, documentacionSeleccionada, situacionDocumentacion,
+                fechaHoraActual, empleadoLogueado);
     }
 
     private LocalDateTime getFecha() {
@@ -234,6 +324,12 @@ public class ControllerRegistrarRecepcionBolsin {
     private void finCU() {
         this.bolsinSeleccionado = null;
         this.remitosDelBolsinSeleccionado = null;
+        limpiarOpcionRecepcion();
+    }
+
+    private void limpiarOpcionRecepcion() {
         this.opcionRecepcionBolsinSeleccionada = null;
+        this.situacionDocumentacion = null;
+        this.documentacionSeleccionada = List.of();
     }
 }

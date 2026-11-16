@@ -13,6 +13,13 @@
 --        el patrón State RECHAZA aceptar() y se hace rollback.
 --   1004 (precinto 50004) Córdoba -> Rosario, Enviado  -> NO aparece (otra CM destino)
 --   1005 (precinto 50005) Mendoza -> Córdoba, Cerrado  -> NO aparece (todavía no fue enviado)
+--   1006 (precinto 50006) Rosario -> Córdoba, Enviado  -> aparece; 2 remitos, 3 documentaciones
+--        (pensado para A3: no se recibe toda la documentación)
+--   1007 (precinto 50007) Mendoza -> Córdoba, Enviado  -> aparece; 1 remito, 2 documentaciones
+--        (pensado para A4: documentación que no corresponde al destino)
+--   1008 (precinto 50008) Rosario -> Central, Enviado  -> solo lo ve un EB de la CMC
+--        (pensado para A5: redirigir a otra área). Para probarlo desde la pantalla hay que
+--        loguearse como alopez: en la consola H2, cerrar la sesión 2 y dejar abierta la 3.
 -- =====================================================================
 
 -- COMISIONES MÉDICAS
@@ -31,17 +38,20 @@ INSERT INTO roles (nombre, descripcion) VALUES
 INSERT INTO empleados (email, nombre, apellido, cm_codigo, rol_nombre) VALUES
 ('juan.perez@cm.test', 'Juan', 'Pérez', 1, 'EB'),
 ('maria.gomez@cm.test', 'María', 'Gómez', 2, 'EB'),
-('carlos.ruiz@cm.test', 'Carlos', 'Ruiz', 3, 'EB');
+('carlos.ruiz@cm.test', 'Carlos', 'Ruiz', 3, 'EB'),
+('ana.lopez@cm.test', 'Ana', 'López', 4, 'EB');
 
 -- USUARIOS
 INSERT INTO usuarios (nombre, contrasena, empleado_email) VALUES
 ('jperez', 'test', 'juan.perez@cm.test'),
-('mgomez', 'test', 'maria.gomez@cm.test');
+('mgomez', 'test', 'maria.gomez@cm.test'),
+('alopez', 'test', 'ana.lopez@cm.test');
 
 -- SESIONES (la activa es la que no tiene fecha de fin)
 INSERT INTO sesiones (id, fecha_inicio, fecha_fin, usuario_nombre) VALUES
 (1, '2026-11-10 08:00:00', '2026-11-10 17:00:00', 'mgomez'),
-(2, '2026-11-13 08:00:00', NULL, 'jperez');
+(2, '2026-11-13 08:00:00', NULL, 'jperez'),
+(3, '2026-11-12 08:00:00', '2026-11-12 17:00:00', 'alopez');
 
 -- TIPOS DE DOCUMENTO
 INSERT INTO tipos_documento (nombre, descripcion) VALUES
@@ -69,7 +79,10 @@ INSERT INTO bolsines (numero_bolsin, fecha, numero_precinto, peso, cm_origen_cod
 (1002, '2026-11-11', 50002, 1200, 3, 1),
 (1003, '2026-11-12', 50003, 800,  2, 1),
 (1004, '2026-11-12', 50004, 1000, 1, 2),
-(1005, '2026-11-12', 50005, 500,  3, 1);
+(1005, '2026-11-12', 50005, 500,  3, 1),
+(1006, '2026-11-13', 50006, 1800, 2, 1),
+(1007, '2026-11-13', 50007, 900,  3, 1),
+(1008, '2026-11-13', 50008, 1100, 2, 4);
 
 -- CAMBIOS DE ESTADO DE BOLSÍN (el actual es el que no tiene fecha de fin)
 INSERT INTO cambios_estado_bolsin (id, fecha_hora_inicio, fecha_hora_fin, estado_id, responsable_email, bolsin_numero) VALUES
@@ -82,7 +95,10 @@ INSERT INTO cambios_estado_bolsin (id, fecha_hora_inicio, fecha_hora_fin, estado
 (7,  '2026-11-12 14:00:00', NULL,                  3, 'maria.gomez@cm.test', 1003),
 (8,  '2026-11-12 09:30:00', '2026-11-12 13:00:00', 2, 'juan.perez@cm.test',  1004),
 (9,  '2026-11-12 13:00:00', NULL,                  3, 'juan.perez@cm.test',  1004),
-(10, '2026-11-12 11:00:00', NULL,                  2, 'carlos.ruiz@cm.test', 1005);
+(10, '2026-11-12 11:00:00', NULL,                  2, 'carlos.ruiz@cm.test', 1005),
+(11, '2026-11-14 08:00:00', NULL,                  3, 'maria.gomez@cm.test', 1006),
+(12, '2026-11-14 08:30:00', NULL,                  3, 'carlos.ruiz@cm.test', 1007),
+(13, '2026-11-14 09:00:00', NULL,                  3, 'maria.gomez@cm.test', 1008);
 
 -- REMITOS
 INSERT INTO remitos (numero, fecha, cm_origen_codigo, cm_destino_codigo, estado_id, bolsin_numero) VALUES
@@ -91,7 +107,11 @@ INSERT INTO remitos (numero, fecha, cm_origen_codigo, cm_destino_codigo, estado_
 (2003, '2026-11-10', 3, 1, 8, 1002),
 (2004, '2026-11-11', 2, 1, 8, 1003),
 (2005, '2026-11-11', 1, 2, 8, 1004),
-(2006, '2026-11-11', 3, 1, 7, 1005);
+(2006, '2026-11-11', 3, 1, 7, 1005),
+(2007, '2026-11-12', 2, 1, 8, 1006),
+(2008, '2026-11-12', 2, 1, 8, 1006),
+(2009, '2026-11-12', 3, 1, 8, 1007),
+(2010, '2026-11-12', 2, 4, 8, 1008);
 
 -- DOCUMENTACIONES (estado_actual = nombre de la clase estado concreta)
 INSERT INTO documentaciones (numero, asunto, fecha_pase, tipo_documento_nombre, cm_origen_codigo, estado_actual) VALUES
@@ -101,7 +121,14 @@ INSERT INTO documentaciones (numero, asunto, fecha_pase, tipo_documento_nombre, 
 (3004, 'Expediente 8890/26 - Enfermedad profesional', '2026-11-09', 'Expediente', 3, 'EnBolsinEnviado'),
 (3005, 'Carta documento ART - Rechazo de siniestro', '2026-11-10', 'Carta documento', 2, 'EnBolsinSaliente'),
 (3006, 'Expediente 1200/26 - Divergencia en la prestación', '2026-11-10', 'Expediente', 1, 'EnBolsinEnviado'),
-(3007, 'Estudio radiológico trabajador 28.111.222', '2026-11-10', 'Estudio médico', 3, 'EnBolsinSaliente');
+(3007, 'Estudio radiológico trabajador 28.111.222', '2026-11-10', 'Estudio médico', 3, 'EnBolsinSaliente'),
+(3008, 'Expediente 5120/26 - Accidente in itinere', '2026-11-11', 'Expediente', 2, 'EnBolsinEnviado'),
+(3009, 'Estudio de espirometría trabajador 30.222.111', '2026-11-11', 'Estudio médico', 2, 'EnBolsinEnviado'),
+(3010, 'Dictamen de alta médica', '2026-11-11', 'Dictamen', 2, 'EnBolsinEnviado'),
+(3011, 'Expediente 9031/26 - Reagravamiento', '2026-11-11', 'Expediente', 3, 'EnBolsinEnviado'),
+(3012, 'Carta documento dirigida a CM Rosario', '2026-11-11', 'Carta documento', 3, 'EnBolsinEnviado'),
+(3013, 'Dictamen para revisión de Asuntos Legales', '2026-11-11', 'Dictamen', 2, 'EnBolsinEnviado'),
+(3014, 'Expediente 7744/26 - Recurso de apelación', '2026-11-11', 'Expediente', 2, 'EnBolsinEnviado');
 
 -- DETALLES DE REMITO
 INSERT INTO detalles_remito (id, area_cmc_destino, documentacion_numero, remito_numero) VALUES
@@ -111,7 +138,14 @@ INSERT INTO detalles_remito (id, area_cmc_destino, documentacion_numero, remito_
 (4, 'Mesa de entradas', 3004, 2003),
 (5, 'Mesa de entradas', 3005, 2004),
 (6, 'Mesa de entradas', 3006, 2005),
-(7, 'Archivo', 3007, 2006);
+(7, 'Archivo', 3007, 2006),
+(8, 'Mesa de entradas', 3008, 2007),
+(9, 'Mesa de entradas', 3009, 2007),
+(10, 'Archivo', 3010, 2008),
+(11, 'Mesa de entradas', 3011, 2009),
+(12, 'Mesa de entradas', 3012, 2009),
+(13, 'Asuntos Legales', 3013, 2010),
+(14, 'Mesa de entradas', 3014, 2010);
 
 -- CAMBIOS DE ESTADO DE DOCUMENTACIÓN
 INSERT INTO cambios_estado_documentacion (id, fecha_hora_inicio, fecha_hora_fin, estado, responsable_email, documentacion_numero) VALUES
@@ -126,7 +160,14 @@ INSERT INTO cambios_estado_documentacion (id, fecha_hora_inicio, fecha_hora_fin,
 (9,  '2026-11-12 09:00:00', NULL,                  'EnBolsinSaliente', 'maria.gomez@cm.test', 3005),
 (10, '2026-11-12 09:30:00', '2026-11-12 13:00:00', 'EnBolsinSaliente', 'juan.perez@cm.test',  3006),
 (11, '2026-11-12 13:00:00', NULL,                  'EnBolsinEnviado',  'juan.perez@cm.test',  3006),
-(12, '2026-11-12 11:00:00', NULL,                  'EnBolsinSaliente', 'carlos.ruiz@cm.test', 3007);
+(12, '2026-11-12 11:00:00', NULL,                  'EnBolsinSaliente', 'carlos.ruiz@cm.test', 3007),
+(13, '2026-11-14 08:00:00', NULL,                  'EnBolsinEnviado',  'maria.gomez@cm.test', 3008),
+(14, '2026-11-14 08:00:00', NULL,                  'EnBolsinEnviado',  'maria.gomez@cm.test', 3009),
+(15, '2026-11-14 08:00:00', NULL,                  'EnBolsinEnviado',  'maria.gomez@cm.test', 3010),
+(16, '2026-11-14 08:30:00', NULL,                  'EnBolsinEnviado',  'carlos.ruiz@cm.test', 3011),
+(17, '2026-11-14 08:30:00', NULL,                  'EnBolsinEnviado',  'carlos.ruiz@cm.test', 3012),
+(18, '2026-11-14 09:00:00', NULL,                  'EnBolsinEnviado',  'maria.gomez@cm.test', 3013),
+(19, '2026-11-14 09:00:00', NULL,                  'EnBolsinEnviado',  'maria.gomez@cm.test', 3014);
 
 -- Las tablas con id autogenerado arrancan después de los ids cargados a mano
 ALTER TABLE sesiones ALTER COLUMN id RESTART WITH 100;

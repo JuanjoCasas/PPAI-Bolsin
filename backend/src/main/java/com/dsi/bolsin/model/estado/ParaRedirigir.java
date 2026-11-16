@@ -32,7 +32,8 @@ public class ParaRedirigir extends EstadoDocumentacion {
     }
 
     @Override
-    public void recibirYRechazar() {
+    public void recibirYRechazar(Documentacion documentacion, LocalDateTime fechaHoraActual, Empleado responsable,
+            List<CambioEstadoDocumentacion> historiales) {
         throw fueraDeAlcance("recibirYRechazar");
     }
 }

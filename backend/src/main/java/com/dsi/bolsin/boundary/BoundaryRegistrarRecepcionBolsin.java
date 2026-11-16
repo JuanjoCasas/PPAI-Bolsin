@@ -61,16 +61,19 @@ public class BoundaryRegistrarRecepcionBolsin {
     }
 
     // EB -> Boundary : seleccionaOpcionContenidoCoincide()
+    // En los flujos alternativos (A3, A4, A5) el pedido trae además la documentación que marcó el EB.
     @PostMapping("/seleccionar-opcion")
     public ResponseEntity<?> seleccionaOpcionContenidoCoincide(@RequestBody SeleccionarOpcionRequest request) {
-        boolean opcionValida = controller.tomarOpcionRecepcion(request.opcion());
-        if (!opcionValida) {
-            return error(HttpStatus.BAD_REQUEST,
-                    "Esta opción corresponde a un flujo alternativo que no está implementado. Solo se implementa: \""
-                            + ControllerRegistrarRecepcionBolsin.OPCION_CONTENIDO_IGUAL + "\"");
+        try {
+            boolean requiereDocumentacion = controller.tomarOpcionRecepcion(request.opcion());
+            if (requiereDocumentacion) {
+                controller.tomarSeleccionDocumentacion(request.documentaciones());
+            }
+            // Control -> Boundary : pedirConfirmacion()
+            return ResponseEntity.ok(Map.of("mensaje", controller.pedirConfirmacion()));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return error(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        // Control -> Boundary : pedirConfirmacion()
-        return ResponseEntity.ok(Map.of("mensaje", "¿Confirma la recepción del bolsín?"));
     }
 
     // EB -> Boundary : confirmar()

@@ -76,7 +76,8 @@ public class ControllerNotificarRecepcionBolsin {
         for (Documentacion doc : documentaciones) {
             String[] datos = doc.getDatosDocumentacion();
             cuerpo.append(" - N° ").append(datos[0]).append(" ").append(datos[1])
-                    .append(": ").append(doc.getEstadoActual().getNombre()).append("\n");
+                    .append(": ").append(doc.getEstadoActual().getNombre())
+                    .append(" (").append(doc.getEstadoActual().getDescripcion()).append(")\n");
         }
         return cuerpo.toString();
     }

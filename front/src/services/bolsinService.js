@@ -37,7 +37,9 @@ export const opcionRegistrarBolsin = () => post('/iniciar');
 export const seleccionarBolsin = (numeroPrecinto) => post('/seleccionar-bolsin', { numeroPrecinto });
 
 // seleccionaOpcionContenidoCoincide() -> pedirConfirmacion()
-export const seleccionarOpcion = (opcion) => post('/seleccionar-opcion', { opcion });
+// documentaciones: solo en los flujos alternativos A3, A4 y A5
+export const seleccionarOpcion = (opcion, documentaciones = []) =>
+  post('/seleccionar-opcion', { opcion, documentaciones });
 
 // confirmar() -> informarEjecucionExitosa()
 export const confirmar = () => post('/confirmar');

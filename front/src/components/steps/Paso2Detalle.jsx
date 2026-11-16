@@ -16,6 +16,7 @@ import {
   Radio,
   Button,
   Box,
+  Checkbox,
   Alert,
   Dialog,
   DialogTitle,
@@ -36,6 +37,7 @@ const Paso2Detalle = () => {
     useRecepcion();
 
   const [opcion, setOpcion] = useState('');
+  const [marcadas, setMarcadas] = useState([]); // documentación marcada en A3, A4, A5
   const [localError, setLocalError] = useState('');
   const [confirmacion, setConfirmacion] = useState(null); // mensaje de pedirConfirmacion()
 
@@ -43,11 +45,29 @@ const Paso2Detalle = () => {
     return <Alert severity="warning">Primero seleccioná un bolsín.</Alert>;
   }
 
+  // La primera opción es el flujo básico; las demás (A3, A4, A5) piden marcar documentación
+  const [, ...opcionesAlternativas] = detalleBolsin.opcionesRecepcion;
+  const esAlternativa = opcionesAlternativas.includes(opcion);
+  const indicacion = {
+    [opcionesAlternativas[0]]: 'Marcá la documentación que no llegó en el bolsín.',
+    [opcionesAlternativas[1]]: 'Marcá la documentación que no corresponde a esta CM.',
+    [opcionesAlternativas[2]]: 'Marcá la documentación que se debe redirigir a otra área.',
+  }[opcion];
+
+  const handleCambiarOpcion = (e) => {
+    setOpcion(e.target.value);
+    setMarcadas([]);
+    setLocalError('');
+  };
+
+  const toggleMarcada = (numero) =>
+    setMarcadas((prev) => (prev.includes(numero) ? prev.filter((n) => n !== numero) : [...prev, numero]));
+
   // seleccionaOpcionContenidoCoincide()
   const handleSeleccionarOpcion = async () => {
     setLoading(true);
     setLocalError('');
-    const result = await seleccionarOpcion(opcion);
+    const result = await seleccionarOpcion(opcion, esAlternativa ? marcadas : []);
     if (result.success) {
       setConfirmacion(result.data.mensaje);
     } else {
@@ -86,6 +106,7 @@ const Paso2Detalle = () => {
           <Table size="small">
             <TableHead>
               <TableRow>
+                {esAlternativa && <TableCell padding="checkbox" />}
                 <TableCell>Remito</TableCell>
                 <TableCell>N° documentación</TableCell>
                 <TableCell>Asunto</TableCell>
@@ -95,7 +116,16 @@ const Paso2Detalle = () => {
             <TableBody>
               {detalleBolsin.remitos.map((remito) =>
                 remito.documentaciones.map((doc, i) => (
-                  <TableRow key={`${remito.numero}-${doc.numero}`}>
+                  <TableRow key={`${remito.numero}-${doc.numero}`} selected={marcadas.includes(doc.numero)}>
+                    {esAlternativa && (
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={marcadas.includes(doc.numero)}
+                          onChange={() => toggleMarcada(doc.numero)}
+                          inputProps={{ 'aria-label': `Marcar documentación ${doc.numero}` }}
+                        />
+                      </TableCell>
+                    )}
                     {i === 0 && (
                       <TableCell rowSpan={remito.documentaciones.length} sx={{ fontWeight: 600 }}>
                         {remito.numero}
@@ -115,12 +145,18 @@ const Paso2Detalle = () => {
           <FormLabel component="legend" sx={{ mb: 1, fontWeight: 500 }}>
             Resultado de la recepción
           </FormLabel>
-          <RadioGroup value={opcion} onChange={(e) => setOpcion(e.target.value)}>
+          <RadioGroup value={opcion} onChange={handleCambiarOpcion}>
             {detalleBolsin.opcionesRecepcion.map((op) => (
               <FormControlLabel key={op} value={op} control={<Radio />} label={op} />
             ))}
           </RadioGroup>
         </FormControl>
+
+        {esAlternativa && (
+          <Alert severity="info" sx={{ mt: 2 }}>
+            {indicacion} La documentación sin marcar queda recibida y aceptada.
+          </Alert>
+        )}
 
         {localError && (
           <Alert severity="error" sx={{ mt: 3 }}>
@@ -141,7 +177,7 @@ const Paso2Detalle = () => {
             variant="contained"
             endIcon={loading ? <CircularProgress size={18} color="inherit" /> : <CheckCircleOutline />}
             onClick={handleSeleccionarOpcion}
-            disabled={!opcion || loading}
+            disabled={!opcion || (esAlternativa && marcadas.length === 0) || loading}
             size="large"
           >
             Confirmar recepción
@@ -154,10 +190,7 @@ const Paso2Detalle = () => {
       <Dialog open={!!confirmacion} onClose={() => setConfirmacion(null)}>
         <DialogTitle>Confirmar recepción</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {confirmacion} Se registrará el bolsín precinto N° {detalleBolsin.numeroPrecinto} como recibido y toda
-            su documentación como recibida y aceptada.
-          </DialogContentText>
+          <DialogContentText>{confirmacion}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmacion(null)} disabled={loading}>
