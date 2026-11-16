@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * No es una pantalla: es la interfaz con un sistema externo.
  * - Con SMTP configurado (backend/mail-local.properties), el mail se envía de verdad.
  * - Sin configurar, el envío se simula: el mail se escribe en el log.
- * En los dos casos el mail queda registrado en memoria (lo usan los tests).
+ * En los dos casos el mail queda registrado en memoria.
  */
 @Component
 public class InterfazServidorCorreo {
@@ -46,8 +46,6 @@ public class InterfazServidorCorreo {
     }
 
     /**
-     * Control -> Interfaz : enviarMail(destinatario, asunto, cuerpo)
-     *
      * Devuelve el resultado del envío. Si el servidor de correo falla no se lanza excepción:
      * la recepción del bolsín ya quedó registrada y no se debe deshacer por un mail.
      */

@@ -34,13 +34,10 @@ public class Sesion {
     protected Sesion() {
     }
 
-    // No figura en los diagramas: el control necesita encontrar la sesión activa
-    // (la que no tiene fecha de fin). En el diagrama vamos directo a "activa:Sesion".
     public boolean sosActiva() {
         return fechaFin == null;
     }
 
-    // Sesion -> Usuario : getEmpleado() -> Empleado : getCM()
     public ComisionMedica getCMUsuarioLogueado() {
         return usuario.getEmpleado().getCM();
     }

@@ -34,7 +34,7 @@ import com.dsi.bolsin.repository.ISesionRepository;
 @Service
 public class ControllerRegistrarRecepcionBolsin {
 
-    // Opciones de recepción del paso 7 del CU (texto según la ERS)
+    // Opciones de recepción del paso 7 del CU
     public static final String OPCION_CONTENIDO_IGUAL = "El contenido del bolsín es igual al registrado";
     public static final String OPCION_NO_SE_RECIBE_TODA =
             "No se recibe toda la documentación asociada a los remitos que contiene el bolsín";
@@ -48,7 +48,7 @@ public class ControllerRegistrarRecepcionBolsin {
     private final ControllerNotificarRecepcionBolsin controllerNotificarRecepcionBolsin;
     private final TransactionTemplate transactionTemplate;
 
-    // ---- Atributos del control (vista de clases) ----
+    // ---- Atributos del control ----
     private Sesion sesionActiva;
     private Empleado empleadoLogueado;
     private ComisionMedica cmUsuarioLogueado;
@@ -74,11 +74,9 @@ public class ControllerRegistrarRecepcionBolsin {
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
-    // =====================================================================
+    
     // Boundary -> Control : opcionRegistrarBolsin()
-    // =====================================================================
     public InicioResponse opcionRegistrarBolsin() {
-        // En el diagrama vamos directo a "activa:Sesion"; en código hay que buscarla.
         this.sesionActiva = sesionRepository.findAll().stream()
                 .filter(Sesion::sosActiva)
                 .findFirst()
@@ -86,7 +84,7 @@ public class ControllerRegistrarRecepcionBolsin {
         this.empleadoLogueado = sesionActiva.getEmpleadoLogueado();
 
         this.cmUsuarioLogueado = getCMUsuarioLogueado();
-        String nombreCM = cmUsuarioLogueado.getNombre(); // -> mostrarCMUsuario()
+        String nombreCM = cmUsuarioLogueado.getNombre();
 
         List<BolsinResponse> bolsines = obtenerBolsinesCMUsuario(); // -> mostrarBolsines()
 

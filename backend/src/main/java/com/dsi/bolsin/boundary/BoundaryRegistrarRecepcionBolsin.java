@@ -33,7 +33,7 @@ public class BoundaryRegistrarRecepcionBolsin {
         this.controller = controller;
     }
 
-    // EB -> Boundary : opcionRegistrarBolsin()
+    
     @PostMapping("/iniciar")
     public ResponseEntity<?> opcionRegistrarBolsin() {
         try {
@@ -49,7 +49,7 @@ public class BoundaryRegistrarRecepcionBolsin {
         return controller.opcionRegistrarBolsin();
     }
 
-    // EB -> Boundary : seleccionarBolsin()
+    
     @PostMapping("/seleccionar-bolsin")
     public ResponseEntity<?> seleccionarBolsin(@RequestBody SeleccionarBolsinRequest request) {
         DetalleBolsinResponse detalle = controller.tomarSeleccionBolsin(request.numeroPrecinto());
