@@ -1,5 +1,6 @@
 package com.dsi.bolsin.control;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.dsi.bolsin.boundary.InterfazServidorCorreo;
+import com.dsi.bolsin.boundary.PlantillaMailRecepcionBolsin;
 import com.dsi.bolsin.dto.NotificacionResponse;
 import com.dsi.bolsin.model.Bolsin;
 import com.dsi.bolsin.model.ComisionMedica;
@@ -43,7 +45,8 @@ public class ControllerNotificarRecepcionBolsin {
 
             String resultado = interfazServidorCorreo.enviarMail(cmOrigen.getEmail(),
                     "Recepción del bolsín precinto N° " + bolsin.getNroPrecinto(),
-                    armarCuerpo(bolsin, cmOrigen, documentaciones));
+                    armarCuerpo(bolsin, cmOrigen, documentaciones),
+                    armarCuerpoHtml(bolsin, cmOrigen, documentaciones));
 
             notificaciones.add(new NotificacionResponse(cmOrigen.getNombre(), cmOrigen.getEmail(),
                     documentaciones.size(), resultado));
@@ -66,7 +69,20 @@ public class ControllerNotificarRecepcionBolsin {
         return porCM;
     }
 
-    // Situación de la documentación (Obs. 2): número, asunto y estado en que quedó
+    // Versión HTML del mismo contenido, con el diseño del front
+    private String armarCuerpoHtml(Bolsin bolsin, ComisionMedica cmOrigen, List<Documentacion> documentaciones) {
+        List<PlantillaMailRecepcionBolsin.Fila> filas = new ArrayList<>();
+        for (Documentacion doc : documentaciones) {
+            String[] datos = doc.getDatosDocumentacion();
+            filas.add(new PlantillaMailRecepcionBolsin.Fila(datos[0], datos[1], doc.getTipoDocumentacion(),
+                    doc.getEstadoActual().getNombre()));
+        }
+        return PlantillaMailRecepcionBolsin.armarHtml(cmOrigen.getNombre(), bolsin.getCMDestino(),
+                bolsin.getNroPrecinto(), LocalDateTime.now(), filas);
+    }
+
+    // Situación de la documentación (Obs. 2): número, asunto y estado en que quedó.
+    // Versión en texto plano: la usan los clientes de correo que no muestran HTML.
     private String armarCuerpo(Bolsin bolsin, ComisionMedica cmOrigen, List<Documentacion> documentaciones) {
         StringBuilder cuerpo = new StringBuilder();
         cuerpo.append("Sres. ").append(cmOrigen.getNombre()).append(":\n")

@@ -138,6 +138,10 @@ class RegistrarRecepcionBolsinTest {
         assertEquals(1, notificaciones.size());
         InterfazServidorCorreo.Mail mail = ultimoMail();
         assertTrue(mail.cuerpo().contains("3009 Estudio de espirometría trabajador 30.222.111: " + NoRecibida.NOMBRE));
+        // Versión HTML: chip con el estado y la acción pendiente para la documentación no recibida
+        assertTrue(mail.cuerpoHtml().contains("Estudio de espirometría trabajador 30.222.111"));
+        assertTrue(mail.cuerpoHtml().contains(">No recibida<"));
+        assertTrue(mail.cuerpoHtml().contains("Acciones pendientes"));
 
         Bolsin bolsin = bolsinRepository.findById(1006).orElseThrow();
         assertFalse(bolsin.sosEnviado());
