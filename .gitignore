@@ -1,0 +1,20 @@
+# Backend (Maven)
+backend/target/
+*.class
+
+# Frontend (Node)
+front/node_modules/
+front/dist/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Credenciales SMTP locales (CU 29)
+backend/mail-local.properties
+mail-local.properties
