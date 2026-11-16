@@ -1,9 +1,0 @@
-# Copiar este archivo como "mail-local.properties" (en la carpeta backend) y completar la contraseña.
-# mail-local.properties está en .gitignore: la contraseña no se sube al repo.
-notificaciones.mail.habilitado=true
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=ppaibolsines@gmail.com
-spring.mail.password=CONTRASEÑA_DE_APLICACION
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true

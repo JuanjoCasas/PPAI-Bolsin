@@ -53,7 +53,7 @@ group loop Para cada remito del bolsín [mientras el bolsín tenga remitos]
 
         EnBolsinEnviado -> EnBolsinEnviado : crearCambioEstado(fechaHoraActual: DateTime, estado: EstadoDocumentacion, responsable: Empleado)
         create entity "nuevo:CambioEstadoDocumentacion" as NuevoCambioEstado
-        EnBolsinEnviado --> NuevoCambioEstado : new(fechaHoraInicio: DateTime, estado: EstadoDocumentacion, responsable: Empleado)
+        EnBolsinEnviado --> NuevoCambioEstado : new(fechaHoraInicio: DateTime, estado: EstadoDocumentacion, responsable: Empleado): CambioEstadoDocumentacion
 
         ' Transición de estado
         EnBolsinEnviado -> Documentacion : setEstado(estado: EstadoDocumentacion)
